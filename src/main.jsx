@@ -16,6 +16,11 @@ import Course from "./component/Course.jsx";
 import CourseDetails from "./component/CourseDetails.jsx";
 import Dashboard from "./component/Dashboard.jsx";
 import PrivateRout from "./component/PrivateRout.jsx";
+import MyEnrolledCourse from "./component/MyEnrolledCourse.jsx";
+import AddCourse from "./component/AddCourse.jsx";
+import MyAddedCourse from "./component/MyAddedCourse.jsx";
+import UpdateCourse from "./component/UpdateCourse.jsx";
+import Loading from "./component/Loading.jsx";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +31,8 @@ const router = createBrowserRouter([
       {
         index: true,
         Component: Home,
+        loader: () => fetch("http://localhost:3000/courses"),
+        hydrateFallbackElement: Loading,
       },
       { path: "/login", Component: Login },
       { path: "/register", Component: Signin },
@@ -37,6 +44,39 @@ const router = createBrowserRouter([
         element: (
           <PrivateRout>
             <Dashboard></Dashboard>
+          </PrivateRout>
+        ),
+      },
+      {
+        path: "/dashboard/myEnrolledCourse",
+        element: (
+          <PrivateRout>
+            <MyEnrolledCourse></MyEnrolledCourse>
+          </PrivateRout>
+        ),
+      },
+
+      {
+        path: "/dashboard/addCourse",
+        element: (
+          <PrivateRout>
+            <AddCourse></AddCourse>
+          </PrivateRout>
+        ),
+      },
+      {
+        path: "/dashboard/myAddedCourse",
+        element: (
+          <PrivateRout>
+            <MyAddedCourse></MyAddedCourse>
+          </PrivateRout>
+        ),
+      },
+      {
+        path: "/dashboard/updateCourse",
+        element: (
+          <PrivateRout>
+            <UpdateCourse></UpdateCourse>
           </PrivateRout>
         ),
       },
