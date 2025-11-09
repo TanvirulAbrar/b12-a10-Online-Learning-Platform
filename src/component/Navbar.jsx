@@ -21,7 +21,13 @@ const Navbar = () => {
       <li>
         <NavLink to={"/"}>Home</NavLink>
       </li>
+      <li>
+        <NavLink to={"/courses"}>courses</NavLink>
+      </li>
 
+      <li>
+        <NavLink to={"/dashboard"}>dashboard</NavLink>
+      </li>
       {}
     </>
   );
@@ -164,7 +170,7 @@ const Navbar = () => {
 
                 {!user && (
                   <li>
-                    <NavLink to={"/signin"}>signin</NavLink>
+                    <NavLink to={"/register"}>signin</NavLink>
                   </li>
                 )}
               </ul>

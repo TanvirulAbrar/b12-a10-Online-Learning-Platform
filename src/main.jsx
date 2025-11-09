@@ -11,6 +11,11 @@ import AuthProvider from "./context/AuthProvider.jsx";
 import ForgetPassWord from "./component/ForgetPassWord.jsx";
 
 import ErrorPage from "./component/ErrorPage.jsx";
+import Home from "./component/Home.jsx";
+import Course from "./component/Course.jsx";
+import CourseDetails from "./component/CourseDetails.jsx";
+import Dashboard from "./component/Dashboard.jsx";
+import PrivateRout from "./component/PrivateRout.jsx";
 
 const router = createBrowserRouter([
   {
@@ -18,9 +23,23 @@ const router = createBrowserRouter([
     Component: Root,
     errorElement: <ErrorPage />,
     children: [
+      {
+        index: true,
+        Component: Home,
+      },
       { path: "/login", Component: Login },
       { path: "/register", Component: Signin },
       { path: "/forgetpassword", Component: ForgetPassWord },
+      { path: "/courses", Component: Course },
+      { path: "/courses/:id", Component: CourseDetails },
+      {
+        path: "/dashboard",
+        element: (
+          <PrivateRout>
+            <Dashboard></Dashboard>
+          </PrivateRout>
+        ),
+      },
     ],
   },
 ]);

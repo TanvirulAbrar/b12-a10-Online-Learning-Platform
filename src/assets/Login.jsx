@@ -143,7 +143,7 @@ const Login = () => {
                   </svg>
                   Login with Google
                 </button>
-                <NavLink to={"/signin"} className="my-6 underline">
+                <NavLink to={"/register"} className="my-6 underline">
                   create a new account
                 </NavLink>
               </form>
