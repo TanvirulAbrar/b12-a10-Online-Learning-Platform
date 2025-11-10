@@ -9,10 +9,20 @@ const Dashboard = () => {
       <div className="">add course</div>
       <div className="">my added course</div>
       <div className="">update course</div>
-      <NavLink to={"/dashboard/addCourse"}>a1</NavLink>
-      <NavLink to={"/dashboard/myAddedCourse"}>a2</NavLink>
-      <NavLink to={"/dashboard/updateCourse"}>a3</NavLink>
-      <NavLink to={"/dashboard/myEnrolledCourse"}>a4</NavLink>
+      <div className="flex gap-5 flex-wrap">
+        <NavLink className="btn btn-primary" to={"/dashboard/addCourse"}>
+          add course
+        </NavLink>
+        <NavLink className="btn btn-primary" to={"/dashboard/myAddedCourse"}>
+          my added course
+        </NavLink>
+        <NavLink className="btn btn-primary" to={"/dashboard/updateCourse"}>
+          update course
+        </NavLink>
+        <NavLink className="btn btn-primary" to={"/dashboard/myEnrolledCourse"}>
+          my enrolled course
+        </NavLink>
+      </div>
     </div>
   );
 };
