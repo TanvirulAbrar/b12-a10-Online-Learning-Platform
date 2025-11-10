@@ -59,7 +59,7 @@ const MyCourseCard = ({ course, setCourses, courses }) => {
               <details></details>
             </NavLink>
           </div>
-          <NavLink to={"/updateCourse"}>updateCourse</NavLink>
+          <NavLink to={`/updateCourse/${_id}`}>updateCourse</NavLink>
           <button onClick={handeldelete}>delete</button>
         </div>
       </div>

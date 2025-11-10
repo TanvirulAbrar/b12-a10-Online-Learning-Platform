@@ -79,12 +79,15 @@ const router = createBrowserRouter([
       },
       {},
       {
-        path: "/updateCourse",
+        path: "/updateCourse/:id",
         element: (
           <PrivateRout>
             <UpdateCourse></UpdateCourse>
           </PrivateRout>
         ),
+        loader: ({ params }) =>
+          fetch(`http://localhost:3000/courses/${params.id}`),
+        hydrateFallbackElement: <Loading></Loading>,
       },
     ],
   },
