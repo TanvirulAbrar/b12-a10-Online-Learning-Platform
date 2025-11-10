@@ -32,13 +32,24 @@ const router = createBrowserRouter([
         index: true,
         Component: Home,
         loader: () => fetch("http://localhost:3000/courses"),
-        hydrateFallbackElement: Loading,
+        hydrateFallbackElement: <Loading></Loading>,
       },
       { path: "/login", Component: Login },
       { path: "/register", Component: Signin },
       { path: "/forgetpassword", Component: ForgetPassWord },
-      { path: "/courses", Component: Course },
-      { path: "/courses/:id", Component: CourseDetails },
+      {
+        path: "/courses",
+        Component: Course,
+        loader: () => fetch("http://localhost:3000/courses"),
+        hydrateFallbackElement: <Loading></Loading>,
+      },
+      {
+        path: "/courses/:id",
+        Component: CourseDetails,
+        loader: ({ params }) =>
+          fetch(`http://localhost:3000/courses/${params.id}`),
+        hydrateFallbackElement: <Loading></Loading>,
+      },
       {
         path: "/dashboard",
         element: (
@@ -46,9 +57,11 @@ const router = createBrowserRouter([
             <Dashboard></Dashboard>
           </PrivateRout>
         ),
+        loader: () => fetch(`http://localhost:3000/courses`),
+        hydrateFallbackElement: <Loading></Loading>,
       },
       {
-        path: "/dashboard/myEnrolledCourse",
+        path: "/myEnrolledCourse",
         element: (
           <PrivateRout>
             <MyEnrolledCourse></MyEnrolledCourse>
@@ -57,23 +70,16 @@ const router = createBrowserRouter([
       },
 
       {
-        path: "/dashboard/addCourse",
+        path: "/addCourse",
         element: (
           <PrivateRout>
             <AddCourse></AddCourse>
           </PrivateRout>
         ),
       },
+      {},
       {
-        path: "/dashboard/myAddedCourse",
-        element: (
-          <PrivateRout>
-            <MyAddedCourse></MyAddedCourse>
-          </PrivateRout>
-        ),
-      },
-      {
-        path: "/dashboard/updateCourse",
+        path: "/updateCourse",
         element: (
           <PrivateRout>
             <UpdateCourse></UpdateCourse>
