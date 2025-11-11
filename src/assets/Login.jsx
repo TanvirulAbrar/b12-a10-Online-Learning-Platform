@@ -6,38 +6,46 @@ import { Navigate, NavLink, useLocation, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 const Login = () => {
-  const { setloading, signin, signinWthGoogle } = use(AuthContext);
+  const { setloading, signin, signinWthGoogle, setenrollid, setenroll } =
+    use(AuthContext);
   const [isOk, setisOk] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  const enrollToDb = (result) => {
+    const newCourse = {
+      email: result.user.email,
+      enrolled: [],
+    };
+    fetch("http://localhost:3000/enroll", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newCourse),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setenrollid(data._id);
+        // console.log(data._id);
+        setenroll(data.enrolled);
+        toast.success(" registered successfully!");
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Server error — please try again later!");
+      });
+  };
+
   const handelloginwithgoogle = (event) => {
     event.preventDefault();
 
     signinWthGoogle()
       .then((result) => {
         //console.log(result.user);
-        const newCourse = {
-          email: result.user.email,
-          enrolled: [],
-        };
-        fetch("http://localhost:3000/courses", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newCourse),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log("add c", data);
-            console.log("Submitted Data:", newCourse);
-            toast.success(" registered successfully!");
-          })
-          .catch((error) => {
-            console.error(error);
-            toast.error("Server error — please try again later!");
-          });
+        enrollToDb(result);
+
         navigate(location.state || "/");
       })
       .catch((error) => {
@@ -55,9 +63,10 @@ const Login = () => {
     }
     console.log("ok");
     signin(email, password)
-      .then(() => {
+      .then((result) => {
         //console.log(result.user);
         event.target.reset();
+        enrollToDb(result);
         setisOk("");
         navigate(location.state || "/");
       })

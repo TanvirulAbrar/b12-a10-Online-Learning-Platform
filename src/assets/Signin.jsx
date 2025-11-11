@@ -7,7 +7,32 @@ import { NavLink, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
 const Signin = () => {
-  const { signinWthGoogle } = use(AuthContext);
+  const { signinWthGoogle, setenrollid, setenroll } = use(AuthContext);
+
+  const enrollToDb = (result) => {
+    const newCourse = {
+      email: result.user.email,
+      enrolled: [],
+    };
+    fetch("http://localhost:3000/enroll", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newCourse),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setenrollid(data._id);
+        setenroll(data.enrolled);
+        toast.success(" registered successfully!");
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Server error — please try again later!");
+      });
+  };
+
   const handelloginwithgoogle = (event) => {
     event.preventDefault();
 
@@ -15,27 +40,7 @@ const Signin = () => {
       .then((result) => {
         //console.log(result.user);
 
-        const newUser = {
-          email: result.user.email,
-          enrolled: [],
-        };
-        fetch(`http://localhost:3000/enroll?email=${newUser.email}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newUser),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log("add c", data);
-            console.log("Submitted Data:", newUser);
-            toast.success(" registered successfully!");
-          })
-          .catch((error) => {
-            console.error(error);
-            toast.error("Server error — please try again later!");
-          });
+        enrollToDb(result);
         navigate(location.state || "/");
       })
       .catch((error) => {
@@ -72,27 +77,7 @@ const Signin = () => {
       .then((result) => {
         console.log(result.user.accessToken);
 
-        const newUser = {
-          email: result.user.email,
-          enrolled: [],
-        };
-        fetch(`http://localhost:3000/enroll?email=${newUser.email}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newUser),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            console.log("add c", data);
-            console.log("Submitted Data:", newUser);
-            toast.success(" registered successfully!");
-          })
-          .catch((error) => {
-            console.error(error);
-            toast.error("Server error — please try again later!");
-          });
+        enrollToDb(result);
         updateUser({ displayName: name, photoURL: photo })
           .then(() => {
             setisOk("");

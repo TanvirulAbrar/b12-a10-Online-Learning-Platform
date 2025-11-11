@@ -16,6 +16,8 @@ const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [loading, setloading] = useState(true);
+  const [enroll, setenroll] = useState([]);
+  const [enrollid, setenrollid] = useState("");
 
   const [user, setuser] = useState(null);
   const [userdata, setuserdata] = useState([]);
@@ -23,10 +25,33 @@ const AuthProvider = ({ children }) => {
     setloading(true);
     return createUserWithEmailAndPassword(auth, email, password);
   };
+
   useEffect(() => {
     const unsubscibe = onAuthStateChanged(auth, (currentUser) => {
       setuser(currentUser);
-
+      const enrollToDb = () => {
+        const newCourse = {
+          email: currentUser?.email,
+          enrolled: [],
+        };
+        fetch("http://localhost:3000/enroll", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newCourse),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            setenrollid(data._id);
+            // console.log(data._id);
+            setenroll(data.enrolled);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      };
+      currentUser && enrollToDb();
       setloading(false);
     });
     return () => {
@@ -66,6 +91,10 @@ const AuthProvider = ({ children }) => {
     userdata,
     setuserdata,
     setloading,
+    setenroll,
+    enroll,
+    setenrollid,
+    enrollid,
   };
   return (
     <div>
