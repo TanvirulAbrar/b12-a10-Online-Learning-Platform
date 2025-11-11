@@ -4,6 +4,7 @@ import AuthContext from "../context/AuthContext";
 import { FaRegEye } from "react-icons/fa6";
 import { IoEyeOffOutline } from "react-icons/io5";
 import { NavLink, useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 const Signin = () => {
   const { signinWthGoogle } = use(AuthContext);
@@ -13,16 +14,28 @@ const Signin = () => {
     signinWthGoogle()
       .then((result) => {
         //console.log(result.user);
+
         const newUser = {
-          name: result.user.displayName,
           email: result.user.email,
-          photo: result.user.photoURL,
+          enrolled: [],
         };
-        fetch("http://localhost:3000/users", {
-          method: "post",
-          headers: { "content-type": "application/json" },
+        fetch(`http://localhost:3000/enroll?email=${newUser.email}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(newUser),
-        });
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("add c", data);
+            console.log("Submitted Data:", newUser);
+            toast.success(" registered successfully!");
+          })
+          .catch((error) => {
+            console.error(error);
+            toast.error("Server error — please try again later!");
+          });
         navigate(location.state || "/");
       })
       .catch((error) => {
@@ -58,21 +71,28 @@ const Signin = () => {
     creatUser(email, password)
       .then((result) => {
         console.log(result.user.accessToken);
+
         const newUser = {
-          name: result.user.displayName || "name",
           email: result.user.email,
-          photo: result.user.photoURL || "",
+          enrolled: [],
         };
-        fetch("http://localhost:3000/users", {
-          method: "post",
-          headers: { "content-type": "application/json" },
+        fetch(`http://localhost:3000/enroll?email=${newUser.email}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(newUser),
         })
           .then((res) => res.json())
           .then((data) => {
-            console.log(data);
+            console.log("add c", data);
+            console.log("Submitted Data:", newUser);
+            toast.success(" registered successfully!");
+          })
+          .catch((error) => {
+            console.error(error);
+            toast.error("Server error — please try again later!");
           });
-
         updateUser({ displayName: name, photoURL: photo })
           .then(() => {
             setisOk("");

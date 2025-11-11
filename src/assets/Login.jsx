@@ -15,9 +15,29 @@ const Login = () => {
     event.preventDefault();
 
     signinWthGoogle()
-      .then(() => {
+      .then((result) => {
         //console.log(result.user);
-
+        const newCourse = {
+          email: result.user.email,
+          enrolled: [],
+        };
+        fetch("http://localhost:3000/courses", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newCourse),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log("add c", data);
+            console.log("Submitted Data:", newCourse);
+            toast.success(" registered successfully!");
+          })
+          .catch((error) => {
+            console.error(error);
+            toast.error("Server error — please try again later!");
+          });
         navigate(location.state || "/");
       })
       .catch((error) => {

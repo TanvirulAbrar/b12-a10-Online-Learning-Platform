@@ -55,9 +55,7 @@ const MyCourseCard = ({ course, setCourses, courses }) => {
             are title and actions parts
           </p>
           <div className="card-actions justify-end">
-            <NavLink to={`/courses/${_id}`}>
-              <details></details>
-            </NavLink>
+            <NavLink to={`/courses/${_id}`}>view</NavLink>
           </div>
           <NavLink to={`/updateCourse/${_id}`}>updateCourse</NavLink>
           <button onClick={handeldelete}>delete</button>

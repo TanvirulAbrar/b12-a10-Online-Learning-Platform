@@ -1,6 +1,7 @@
 import { Feather, FeatherIcon } from "lucide-react";
 import React from "react";
 import { NavLink, useLoaderData } from "react-router";
+import { toast } from "react-toastify";
 
 const CourseDetails = () => {
   const course = useLoaderData();
@@ -36,6 +37,9 @@ const CourseDetails = () => {
             </div>
           )}
           <p className="card-title">{description}</p>
+          <div onClick={() => toast("add funs to enroll")} className="btn">
+            enroll now
+          </div>
           <div className="card-actions justify-end">
             <NavLink to={`/courses`}>back</NavLink>
           </div>
