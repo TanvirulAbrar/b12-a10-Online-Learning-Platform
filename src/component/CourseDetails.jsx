@@ -22,7 +22,9 @@ const CourseDetails = () => {
   }, [enroll]);
   const handelSubmit = (event) => {
     event.preventDefault();
-
+    if (course.instructor.email == user.email) {
+      return toast("You cannot enroll in your own course.");
+    }
     let newCourse = {};
     if (isEnrolled) {
       const filterid = enroll.filter((a) => a != course._id);

@@ -5,7 +5,7 @@ import AuthContext from "../context/AuthContext";
 import Swal from "sweetalert2";
 import { addressOfServer } from "./address";
 
-const MyCourseCard = ({ course, setCourses, courses }) => {
+const MyEnrolledCard = ({ course, setCourses, courses }) => {
   const { _id, title, image, price, category } = course;
   const { user } = use(AuthContext);
   const handeldelete = (event) => {
@@ -58,12 +58,12 @@ const MyCourseCard = ({ course, setCourses, courses }) => {
           <div className="card-actions justify-end">
             <NavLink to={`/courses/${_id}`}>view</NavLink>
           </div>
-          <NavLink to={`/updateCourse/${_id}`}>updateCourse</NavLink>
-          <button onClick={handeldelete}>delete</button>
+          {/* <NavLink to={`/updateCourse/${_id}`}>updateCourse</NavLink> */}
+          {/* <button onClick={handeldelete}>delete</button> */}
         </div>
       </div>
     </div>
   );
 };
 
-export default MyCourseCard;
+export default MyEnrolledCard;

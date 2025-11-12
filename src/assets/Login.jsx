@@ -4,6 +4,7 @@ import { IoEyeOffOutline } from "react-icons/io5";
 import AuthContext from "../context/AuthContext";
 import { Navigate, NavLink, useLocation, useNavigate } from "react-router";
 import { toast } from "react-toastify";
+import { addressOfServer } from "../component/address";
 
 const Login = () => {
   const { setloading, signin, signinWthGoogle, setenrollid, setenroll } =
@@ -18,7 +19,7 @@ const Login = () => {
       email: result.user.email,
       enrolled: [],
     };
-    fetch("http://localhost:3000/enroll", {
+    fetch(`${addressOfServer}/enroll`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

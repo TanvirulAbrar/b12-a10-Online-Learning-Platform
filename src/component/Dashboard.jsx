@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { NavLink, useLoaderData } from "react-router";
 import MyAddedCourse from "./MyAddedCourse";
+import MyEnrolledCourse from "./MyEnrolledCourse";
 
 const Dashboard = () => {
   const loadeddata = useLoaderData();
@@ -16,12 +17,12 @@ const Dashboard = () => {
         <NavLink className="btn btn-primary" to={"/addCourse"}>
           add course
         </NavLink>
-        <NavLink className="btn btn-primary" to={"/myAddedCourse"}>
+        {/* <NavLink className="btn btn-primary" to={"/myAddedCourse"}>
           my added course
-        </NavLink>
-        <NavLink className="btn btn-primary" to={"/updateCourse"}>
+        </NavLink> */}
+        {/* <NavLink className="btn btn-primary" to={"/updateCourse"}>
           update course
-        </NavLink>
+        </NavLink> */}
         <NavLink className="btn btn-primary" to={"/myEnrolledCourse"}>
           my enrolled course
         </NavLink>
@@ -29,6 +30,10 @@ const Dashboard = () => {
           courses={courses}
           setCourses={setCourses}
         ></MyAddedCourse>
+        <MyEnrolledCourse
+          courses={courses}
+          setCourses={setCourses}
+        ></MyEnrolledCourse>
       </div>
     </div>
   );

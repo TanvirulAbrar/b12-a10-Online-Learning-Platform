@@ -11,6 +11,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "../firebase/firebase.config";
+import { addressOfServer } from "../component/address";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -34,7 +35,7 @@ const AuthProvider = ({ children }) => {
           email: currentUser?.email,
           enrolled: [],
         };
-        fetch("http://localhost:3000/enroll", {
+        fetch(`${addressOfServer}/enroll`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

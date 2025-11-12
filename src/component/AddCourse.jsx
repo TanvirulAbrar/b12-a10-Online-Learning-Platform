@@ -2,6 +2,7 @@ import React, { use } from "react";
 import { useParams } from "react-router";
 import { toast } from "react-toastify";
 import AuthContext from "../context/AuthContext";
+import { addressOfServer } from "./address";
 
 const AddCourse = () => {
   const { user } = use(AuthContext);
@@ -40,7 +41,7 @@ const AddCourse = () => {
         photo: user.photoURL,
       },
     };
-    fetch("http://localhost:3000/courses", {
+    fetch(`${addressOfServer}/courses`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -21,6 +21,7 @@ import AddCourse from "./component/AddCourse.jsx";
 import MyAddedCourse from "./component/MyAddedCourse.jsx";
 import UpdateCourse from "./component/UpdateCourse.jsx";
 import Loading from "./component/Loading.jsx";
+import { addressOfServer } from "./component/address.js";
 
 const router = createBrowserRouter([
   {
@@ -31,7 +32,7 @@ const router = createBrowserRouter([
       {
         index: true,
         Component: Home,
-        loader: () => fetch("http://localhost:3000/courses"),
+        loader: () => fetch(`${addressOfServer}/courses`),
         hydrateFallbackElement: <Loading></Loading>,
       },
       { path: "/login", Component: Login },
@@ -40,7 +41,7 @@ const router = createBrowserRouter([
       {
         path: "/courses",
         Component: Course,
-        loader: () => fetch("http://localhost:3000/courses"),
+        loader: () => fetch(`${addressOfServer}/courses`),
         hydrateFallbackElement: <Loading></Loading>,
       },
       {
@@ -51,7 +52,7 @@ const router = createBrowserRouter([
           </PrivateRout>
         ),
         loader: ({ params }) =>
-          fetch(`http://localhost:3000/courses/${params.id}`),
+          fetch(`${addressOfServer}/courses/${params.id}`),
         hydrateFallbackElement: <Loading></Loading>,
       },
       {
@@ -61,7 +62,7 @@ const router = createBrowserRouter([
             <Dashboard></Dashboard>
           </PrivateRout>
         ),
-        loader: () => fetch(`http://localhost:3000/courses`),
+        loader: () => fetch(`${addressOfServer}/courses`),
         hydrateFallbackElement: <Loading></Loading>,
       },
       {
@@ -90,7 +91,7 @@ const router = createBrowserRouter([
           </PrivateRout>
         ),
         loader: ({ params }) =>
-          fetch(`http://localhost:3000/courses/${params.id}`),
+          fetch(`${addressOfServer}/courses/${params.id}`),
         hydrateFallbackElement: <Loading></Loading>,
       },
     ],

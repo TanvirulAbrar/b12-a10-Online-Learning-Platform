@@ -5,6 +5,7 @@ import { FaRegEye } from "react-icons/fa6";
 import { IoEyeOffOutline } from "react-icons/io5";
 import { NavLink, useNavigate } from "react-router";
 import { toast } from "react-toastify";
+import { addressOfServer } from "../component/address";
 
 const Signin = () => {
   const { signinWthGoogle, setenrollid, setenroll } = use(AuthContext);
@@ -14,7 +15,7 @@ const Signin = () => {
       email: result.user.email,
       enrolled: [],
     };
-    fetch("http://localhost:3000/enroll", {
+    fetch(`${addressOfServer}/enroll`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

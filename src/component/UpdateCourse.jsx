@@ -2,6 +2,7 @@ import React, { use, useState } from "react";
 import { useLoaderData } from "react-router";
 import { toast } from "react-toastify";
 import AuthContext from "../context/AuthContext";
+import { addressOfServer } from "./address";
 
 const UpdateCourse = () => {
   const course = useLoaderData();
@@ -39,7 +40,7 @@ const UpdateCourse = () => {
         photo: user.photoURL,
       },
     };
-    fetch(`http://localhost:3000/courses/${course._id}`, {
+    fetch(`${addressOfServer}/courses/${course._id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
