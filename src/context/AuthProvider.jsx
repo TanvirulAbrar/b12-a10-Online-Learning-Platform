@@ -44,7 +44,7 @@ const AuthProvider = ({ children }) => {
           .then((res) => res.json())
           .then((data) => {
             setenrollid(data._id);
-            // console.log(data._id);
+            // console.log(data.enrolled);
             setenroll(data.enrolled);
           })
           .catch((error) => {

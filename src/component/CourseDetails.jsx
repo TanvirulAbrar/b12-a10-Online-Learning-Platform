@@ -4,32 +4,45 @@ import { use } from "react";
 import { NavLink, useLoaderData } from "react-router";
 import { toast } from "react-toastify";
 import AuthContext from "../context/AuthContext";
+import { addressOfServer } from "./address";
 
 const CourseDetails = () => {
   const course = useLoaderData();
   const { user, enroll, enrollid, setenroll } = use(AuthContext);
 
   const [isEnrolled, setisEnrolled] = useState(false);
-  const data = enroll.find((a) => a == enrollid);
-  if (data) {
-    setisEnrolled(true);
-  }
+
+  useEffect(() => {
+    const data = enroll.filter((a) => a == course._id);
+    if (data.length) {
+      setisEnrolled(true);
+      // toast("true");
+      console.log(data);
+    }
+  }, [enroll]);
   const handelSubmit = (event) => {
     event.preventDefault();
-    setisEnrolled(!isEnrolled);
-    const addedid = enroll.find((a) => a == enrollid);
-    if (addedid) {
-      return toast("enrolled");
-    }
-    setenroll([...enroll, course._id]);
-    const newCourse = {
-      email: user.email,
-      enrolled: [...enroll, course._id],
-    };
-    console.log("hitted");
-    console.log(enrollid);
 
-    fetch(`http://localhost:3000/enroll/${enrollid}`, {
+    let newCourse = {};
+    if (isEnrolled) {
+      const filterid = enroll.filter((a) => a != course._id);
+
+      setenroll([...filterid]);
+      newCourse = {
+        email: user.email,
+        enrolled: [...filterid],
+      };
+    } else {
+      setenroll([...enroll, course._id]);
+      newCourse = {
+        email: user.email,
+        enrolled: [...enroll, course._id],
+      };
+    }
+    // console.log("hitted");
+    console.log(enroll);
+
+    fetch(`${addressOfServer}/enroll/${enrollid}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -40,12 +53,18 @@ const CourseDetails = () => {
       .then((data) => {
         console.log("add c", data);
         console.log("Submitted Data:", newCourse);
-        toast.success(" enrolled successfully!");
+
+        if (isEnrolled) {
+          toast("canceled successfully");
+        } else {
+          toast.success(" enrolled successfully!");
+        }
       })
       .catch((error) => {
         console.error(error);
         toast.error("Server error — please try again later!");
       });
+    setisEnrolled(!isEnrolled);
   };
 
   const {
@@ -80,7 +99,7 @@ const CourseDetails = () => {
           )}
           <p className="card-title">{description}</p>
           <div onClick={handelSubmit} className="btn">
-            {isEnrolled ? "enroll now" : "enrolled"}
+            {!isEnrolled ? "enroll now" : "cancel enroll"}
           </div>
           <div className="card-actions justify-end">
             <NavLink to={`/courses`}>back</NavLink>
