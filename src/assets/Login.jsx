@@ -134,7 +134,7 @@ const Login = () => {
                     </NavLink>
                   </div>
                   {!isOk == "" && <p className="text-red-600">{isOk}</p>}
-                  <button className="btn skeleton rounded mt-4 relative overflow-hidden">
+                  <button className="btn skeleton  rounded mt-4 relative overflow-hidden">
                     login
                     <span className="absolute inset-0 bg-linear-to-r from-blue-600 to-[#be4fcd] opacity-50"></span>
                   </button>

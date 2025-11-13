@@ -1,30 +1,42 @@
+import { BadgeCheck, Crown } from "lucide-react";
 import React from "react";
 import { NavLink } from "react-router";
 
 const CourseCard = ({ course }) => {
   const { _id, title, image, price, category } = course;
   return (
-    <div>
-      <div className="card bg-base-100 w-96 shadow-sm">
-        <figure>
-          <img src={image} alt="Shoes" />
+    <NavLink to={`/courses/${_id}`}>
+      <div className="p-4 bg-base-100 rounded-3xl max-w-80 border border-[#e1e1e1] transition-all duration-300 hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+        <figure className="overflow-hidden rounded-2xl h-50">
+          <img
+            className="w-full h-full object-cover"
+            src={image}
+            alt="banner"
+          />
         </figure>
-        <div className="card-body">
-          <h2 className="card-title">{title}</h2>
-          <h2 className="card-title">{price}</h2>
-          <h2 className="card-title">{category}</h2>
-          <p>
-            A card component has a figure, a body part, and inside body there
-            are title and actions parts
-          </p>
-          <div className="card-actions justify-end">
-            <NavLink to={`/courses/${_id}`}>
-              <details></details>
-            </NavLink>
+        <div className="py-3 flex flex-col  gap-1">
+          <h2 className="font-bold h-20">{title}</h2>
+
+          <div className=" w-fit px-2 rounded-[5px] bg-green-200 font-bold text-[#198686]">
+            {" "}
+            <h2 className="text-[13px]">{category}</h2>
+          </div>
+          <div className="flex items-center gap-2 w-fit px-2  rounded-[5px] bg-violet-600 text-[13px] text-white font-semibold">
+            <Crown className="h-4 w-4 text-white" />
+            <span>Premium</span>
+          </div>
+          <div className="flex items-center gap-2 w-fit px-2 rounded-[5px] bg-[#ff448f] text-[13px] text-[#ffffff] font-semibold">
+            <BadgeCheck className="h-4 w-4 " />
+            <span>featured</span>
+          </div>
+          <h2 className="pt-3 text-[16px] font-semibold">${price}</h2>
+
+          <div className="card-actions w-fit px-2 rounded-[5px] bg-blue-200 font-bold text-[13px] text-[#198686]">
+            more details
           </div>
         </div>
       </div>
-    </div>
+    </NavLink>
   );
 };
 

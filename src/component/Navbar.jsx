@@ -2,7 +2,7 @@ import React, { use } from "react";
 
 import { NavLink, useNavigate } from "react-router";
 import AuthContext from "../context/AuthContext";
-
+import logo from "../assets/logo.png";
 const Navbar = () => {
   const { user, signoutUser } = use(AuthContext);
 
@@ -32,10 +32,10 @@ const Navbar = () => {
     </>
   );
   return (
-    <div className="bg-linear-to-r from-[#e351f0] to-[#863bfe]">
-      <nav className=" backdrop-blur-md bg-white/30 border border-white/40 w-full  shrink-0 mx-auto shadow-2xl">
-        <div className="navbar  shadow-sm">
-          <div className="navbar-start">
+    <div className="">
+      <nav className=" backdrop-blur-md bg-white/30 border border-white/40 w-full shrink-0 mx-auto ">
+        <div className="navbar shadow-sm">
+          <div className="navbar-start ">
             {
               <button
                 className={`w-fit min-md:hidden `}
@@ -84,21 +84,22 @@ const Navbar = () => {
               }}
               className="btn btn-ghost text-xl"
             >
-              Online Learning
-              <span className="text-[#166e97]">Platform</span>
+              <img src={logo} className="h-full" alt="" />
+              O-
+              <span className="text-[#4e2ea5]">Learning</span>
             </a>
           </div>
           <div className="navbar-center hidden min-sm:flex">
-            <ul className="menu menu-horizontal px-1">{links}</ul>
+            <ul className="menu menu-horizontal px-1 font-semibold">{links}</ul>
           </div>
-          <div className="navbar-end">
+          <div className="navbar-end ">
             {!user && (
               <>
                 <button
                   onClick={() => {
                     navigate("/login");
                   }}
-                  className="btn max-[500px]:hidden btn-outline btn-accent mr-1.5"
+                  className="btn  max-[500px]:hidden btn-outline btn-primary mr-1.5"
                 >
                   Login{" "}
                 </button>
@@ -106,7 +107,7 @@ const Navbar = () => {
                   onClick={() => {
                     navigate("/register");
                   }}
-                  className="btn max-[500px]:hidden min-lg: btn-outline btn-success"
+                  className="btn max-[500px]:hidden btn-primary"
                 >
                   Register
                 </button>
@@ -115,6 +116,7 @@ const Navbar = () => {
             {/* <p>{userdata.length}</p>
           <p className="">{userdata[0]}</p>
           <p className="">{userdata[1]}</p> */}
+
             {
               <button
                 className={`w-fit ${!user && "hidden"} `}

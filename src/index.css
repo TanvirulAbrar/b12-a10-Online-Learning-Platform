@@ -2,4 +2,5 @@
 @plugin "daisyui";
 nav a.active {
   text-decoration: underline;
+  color: rgb(83, 95, 230);
 }
