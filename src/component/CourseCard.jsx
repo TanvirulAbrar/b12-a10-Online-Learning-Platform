@@ -1,4 +1,4 @@
-import { BadgeCheck, Crown } from "lucide-react";
+import { BadgeCheck, ChevronRight, Crown } from "lucide-react";
 import React from "react";
 import { NavLink } from "react-router";
 
@@ -31,8 +31,8 @@ const CourseCard = ({ course }) => {
           </div>
           <h2 className="pt-3 text-[16px] font-semibold">${price}</h2>
 
-          <div className="card-actions w-fit px-2 rounded-[5px] bg-blue-200 font-bold text-[13px] text-[#198686]">
-            more details
+          <div className="card-actions flex items-center w-fit px-2 rounded-[5px] hover:bg-blue-200 font-bold text-[13px] text-[#311986]">
+            more details <ChevronRight className="h-4 w-4 " />
           </div>
         </div>
       </div>
