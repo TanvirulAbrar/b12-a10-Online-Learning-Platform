@@ -64,24 +64,29 @@ const router = createBrowserRouter([
         ),
         loader: () => fetch(`${addressOfServer}/courses`),
         hydrateFallbackElement: <Loading></Loading>,
-      },
-      {
-        path: "/myEnrolledCourse",
-        element: (
-          <PrivateRout>
-            <MyEnrolledCourse></MyEnrolledCourse>
-          </PrivateRout>
-        ),
+        children: [
+          {
+            index: true,
+            path: "/dashboard",
+            element: <MyAddedCourse></MyAddedCourse>,
+            loader: () => fetch(`${addressOfServer}/courses`),
+            hydrateFallbackElement: <Loading></Loading>,
+          },
+          {
+            path: "/dashboard/myEnrolledCourse",
+            element: <MyEnrolledCourse></MyEnrolledCourse>,
+            loader: () => fetch(`${addressOfServer}/courses`),
+            hydrateFallbackElement: <Loading></Loading>,
+          },
+          {
+            path: "/dashboard/addCourse",
+            element: <AddCourse></AddCourse>,
+            loader: () => fetch(`${addressOfServer}/courses`),
+            hydrateFallbackElement: <Loading></Loading>,
+          },
+        ],
       },
 
-      {
-        path: "/addCourse",
-        element: (
-          <PrivateRout>
-            <AddCourse></AddCourse>
-          </PrivateRout>
-        ),
-      },
       {},
       {
         path: "/updateCourse/:id",

@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 import { toast } from "react-toastify";
 import AuthContext from "../context/AuthContext";
 import { addressOfServer } from "./address";
+import axios from "axios";
 
 const AddCourse = () => {
   const { user } = use(AuthContext);
@@ -41,16 +42,11 @@ const AddCourse = () => {
         photo: user.photoURL,
       },
     };
-    fetch(`${addressOfServer}/courses`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newCourse),
-    })
-      .then((res) => res.json())
+    axios
+      .post(`${addressOfServer}/courses`, newCourse)
+
       .then((data) => {
-        console.log("add c", data);
+        console.log("add c", data.data);
         console.log("Submitted Data:", newCourse);
         toast.success("Course added successfully!");
       })
@@ -60,59 +56,80 @@ const AddCourse = () => {
       });
   };
   return (
-    <div>
-      add course
-      <div className="card-body">
-        <form action="" onSubmit={handelAddCourse}>
-          {" "}
-          <fieldset className="fieldset">
-            <label className="label">title</label>
+    <div className="max-w-xl mx-auto bg-white shadow-md rounded-2xl p-6">
+      <h2 className="text-2xl font-bold mb-4 text-gray-800">Add Course</h2>
+
+      <div className="card-body p-0">
+        <form onSubmit={handelAddCourse} className="space-y-4">
+          <div>
+            <label className="label font-medium">Title</label>
             <input
               name="title"
               type="text"
-              className="input"
-              placeholder="title"
+              className="input input-bordered w-full"
+              placeholder="Enter course title"
             />
-            <label className="label">image</label>
+          </div>
+
+          <div>
+            <label className="label font-medium">Image URL</label>
             <input
               name="image"
               type="text"
-              className="input"
-              placeholder="image"
+              className="input input-bordered w-full"
+              placeholder="Enter image URL"
             />
-            <label className="label">price</label>
-            <input
-              name="price"
-              type="text"
-              className="input"
-              placeholder="price"
-            />
-            <label className="label">duration</label>
-            <input
-              name="duration"
-              type="text"
-              className="input"
-              placeholder="duration"
-            />
-            <label className="label">category</label>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label font-medium">Price</label>
+              <input
+                name="price"
+                type="text"
+                className="input input-bordered w-full"
+                placeholder="Price"
+              />
+            </div>
+
+            <div>
+              <label className="label font-medium">Duration</label>
+              <input
+                name="duration"
+                type="text"
+                className="input input-bordered w-full"
+                placeholder="Duration"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="label font-medium">Category</label>
             <input
               name="category"
               type="text"
-              className="input"
-              placeholder="category"
+              className="input input-bordered w-full"
+              placeholder="Category"
             />
-            <label className="label">description</label>
-            <input
+          </div>
+
+          <div>
+            <label className="label font-medium">Description</label>
+            <textarea
               name="description"
-              type="text"
-              className="input"
-              placeholder="description"
-            />
+              className="textarea textarea-bordered w-full"
+              placeholder="Short description"
+            ></textarea>
+          </div>
 
-            <input type="checkbox" name="isFeatured" value="isFeatured" />
+          <div className="flex items-center gap-2">
+            <input type="checkbox" name="isFeatured" className="checkbox" />
+            <span className="text-gray-700">Featured Course</span>
+          </div>
 
-            <button className="btn btn-neutral mt-4">add</button>
-          </fieldset>
+          <button className="btn btn-neutral bg-indigo-700 w-full">
+            Add Course
+          </button>
         </form>
       </div>
     </div>

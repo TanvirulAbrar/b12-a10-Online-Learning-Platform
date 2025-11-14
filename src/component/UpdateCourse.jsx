@@ -3,6 +3,7 @@ import { useLoaderData } from "react-router";
 import { toast } from "react-toastify";
 import AuthContext from "../context/AuthContext";
 import { addressOfServer } from "./address";
+import axios from "axios";
 
 const UpdateCourse = () => {
   const course = useLoaderData();
@@ -40,16 +41,10 @@ const UpdateCourse = () => {
         photo: user.photoURL,
       },
     };
-    fetch(`${addressOfServer}/courses/${course._id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newCourse),
-    })
-      .then((res) => res.json())
+    axios
+      .patch(`${addressOfServer}/courses/${course._id}`, newCourse)
       .then((data) => {
-        console.log("add c", data);
+        console.log("add c", data.data);
         console.log("Submitted Data:", newCourse);
         toast.success("Course updated successfully!");
       })
@@ -59,71 +54,92 @@ const UpdateCourse = () => {
       });
   };
   return (
-    <div>
-      UpdateCourse UpdateCourse
-      <div className="card-body">
-        <form action="" onSubmit={handelUpdateCourse}>
-          {" "}
-          <fieldset className="fieldset">
-            <label className="label">title</label>
+    <div className="max-w-xl mx-auto bg-white shadow-md rounded-2xl p-6">
+      <h2 className="text-2xl font-bold mb-4 text-gray-800">Update Course</h2>
+
+      <div className="card-body p-0">
+        <form onSubmit={handelUpdateCourse} className="space-y-4">
+          <div>
+            <label className="label font-medium">Title</label>
             <input
               name="title"
               type="text"
               defaultValue={course.title}
-              className="input"
-              placeholder="title"
+              className="input input-bordered w-full"
+              placeholder="Course title"
             />
-            <label className="label">image</label>
+          </div>
+
+          <div>
+            <label className="label font-medium">Image URL</label>
             <input
               name="image"
               type="text"
               defaultValue={course.image}
-              className="input"
-              placeholder="image"
+              className="input input-bordered w-full"
+              placeholder="Image link"
             />
-            <label className="label">price</label>
-            <input
-              name="price"
-              type="text"
-              defaultValue={course.price}
-              className="input"
-              placeholder="price"
-            />
-            <label className="label">duration</label>
-            <input
-              name="duration"
-              type="text"
-              defaultValue={course.duration}
-              className="input"
-              placeholder="duration"
-            />
-            <label className="label">category</label>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label font-medium">Price</label>
+              <input
+                name="price"
+                type="text"
+                defaultValue={course.price}
+                className="input input-bordered w-full"
+                placeholder="Price"
+              />
+            </div>
+
+            <div>
+              <label className="label font-medium">Duration</label>
+              <input
+                name="duration"
+                type="text"
+                defaultValue={course.duration}
+                className="input input-bordered w-full"
+                placeholder="Duration"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="label font-medium">Category</label>
             <input
               name="category"
               type="text"
               defaultValue={course.category}
-              className="input"
-              placeholder="category"
+              className="input input-bordered w-full"
+              placeholder="Category"
             />
-            <label className="label">description</label>
-            <input
-              name="description"
-              type="text"
-              defaultValue={course.description}
-              className="input"
-              placeholder="description"
-            />
+          </div>
 
+          <div>
+            <label className="label font-medium">Description</label>
+            <textarea
+              name="description"
+              defaultValue={course.description}
+              className="textarea textarea-bordered w-full"
+              placeholder="Course description"
+            ></textarea>
+          </div>
+
+          <div className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={isFeatured}
               name="isFeatured"
-              value="isFeatured"
               onChange={(e) => setIsChecked(e.target.checked)}
+              className="checkbox"
             />
+            <span className="text-gray-700">Featured Course</span>
+          </div>
 
-            <button className="btn btn-neutral mt-4">updateCourse</button>
-          </fieldset>
+          <button className="btn btn-neutral bg-indigo-700 w-full">
+            Update Course
+          </button>
         </form>
       </div>
     </div>

@@ -1,15 +1,15 @@
-import React, { use } from "react";
+import React, { use, useState } from "react";
 import { useLoaderData } from "react-router";
 import AuthContext from "../context/AuthContext";
 import MyCourseCard from "./MyCourseCard";
 
-const MyAddedCourse = ({ setCourses, courses }) => {
+const MyAddedCourse = () => {
   const { user } = use(AuthContext);
-
+  const loadeddata = useLoaderData();
+  const [courses, setCourses] = useState(loadeddata);
   return (
     <div>
-      MyAddedCourse MyAddedCourse
-      <div className="flex flex-wrap">
+      <div className="grid gap-5 grid-cols-1">
         {courses
           .filter((a) => a.instructor.email == user.email)
           .map((course) => (

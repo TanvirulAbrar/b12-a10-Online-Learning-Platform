@@ -6,6 +6,7 @@ import { IoEyeOffOutline } from "react-icons/io5";
 import { NavLink, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { addressOfServer } from "../component/address";
+import axios from "axios";
 
 const Signin = () => {
   const { signinWthGoogle, setenrollid, setenroll } = use(AuthContext);
@@ -15,15 +16,11 @@ const Signin = () => {
       email: result.user.email,
       enrolled: [],
     };
-    fetch(`${addressOfServer}/enroll`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newCourse),
-    })
-      .then((res) => res.json())
-      .then((data) => {
+    axios
+      .post(`${addressOfServer}/enroll`, newCourse)
+
+      .then((res) => {
+        const data = res.data;
         setenrollid(data._id);
         setenroll(data.enrolled);
         toast.success(" registered successfully!");
@@ -98,10 +95,10 @@ const Signin = () => {
 
   return (
     <div>
-      <div className="hero bg-[url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170')] min-h-fit">
+      <div className="hero bg-gradient-to-r from-[#226ebf] to-[#37d1c9] min-h-fit">
         <div className="hero-content flex-col lg:flex-row-reverse">
           <div className="text-center lg:text-left">
-            <h1 className="text-5xl font-bold">Register now!</h1>
+            <h1 className="text-5xl text-white font-bold">Register now!</h1>
             <p className="py-6"> start your journey with nature</p>
           </div>
           <div className="card backdrop-blur-md bg-white/30 border border-white/40 w-full max-w-sm shrink-0 shadow-2xl">

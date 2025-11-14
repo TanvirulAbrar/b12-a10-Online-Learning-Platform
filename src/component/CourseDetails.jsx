@@ -23,6 +23,7 @@ import {
   User,
   CheckCircleIcon,
 } from "lucide-react";
+import axios from "axios";
 const CourseDetails = () => {
   const course = useLoaderData();
   const { user, enroll, enrollid, setenroll } = use(AuthContext);
@@ -61,15 +62,11 @@ const CourseDetails = () => {
     // console.log("hitted");
     console.log(enroll);
 
-    fetch(`${addressOfServer}/enroll/${enrollid}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newCourse),
-    })
-      .then((res) => res.json())
-      .then((data) => {
+    axios
+      .patch(`${addressOfServer}/enroll/${enrollid}`, newCourse)
+
+      .then((res) => {
+        const data = res.data;
         console.log("add c", data);
         console.log("Submitted Data:", newCourse);
 

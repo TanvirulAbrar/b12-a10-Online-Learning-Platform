@@ -12,6 +12,7 @@ import {
 } from "firebase/auth";
 import { auth } from "../firebase/firebase.config";
 import { addressOfServer } from "../component/address";
+import axios from "axios";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -35,17 +36,11 @@ const AuthProvider = ({ children }) => {
           email: currentUser?.email,
           enrolled: [],
         };
-        fetch(`${addressOfServer}/enroll`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newCourse),
-        })
-          .then((res) => res.json())
-          .then((data) => {
+        axios
+          .post(`${addressOfServer}/enroll`, newCourse)
+          .then((res) => {
+            const data = res.data;
             setenrollid(data._id);
-            // console.log(data.enrolled);
             setenroll(data.enrolled);
           })
           .catch((error) => {

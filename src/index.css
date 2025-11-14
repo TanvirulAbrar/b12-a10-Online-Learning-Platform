@@ -4,3 +4,13 @@ nav a.active {
   text-decoration: underline;
   color: rgb(83, 95, 230);
 }
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.dark {
+  background-color: rgb(144, 174, 255);
+  color: rgb(18, 120, 112);
+}
