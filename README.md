@@ -57,22 +57,22 @@ O-Learning is a modern full-stack online learning platform where students can ex
    git clone https://github.com/TanvirulAbrar/b12-a10-Online-Learning-Platform.git
 
 2. Install dependencies:
-
-npm install
+  ```bash
+  npm install
 
 
 3. Create a .env file and add:
 
-Firebase config keys
+  Firebase config keys
 
-MongoDB URI
+  MongoDB URI
 
-IMGBB API key
+  IMGBB API key
 
 5. Start the development server:
-
-npm run dev
+  ```bash
+  npm run dev
 
 ## 📸 Screenshot
 
-Not added yet.
+  Not added yet.
