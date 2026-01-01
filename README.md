@@ -57,8 +57,8 @@ O-Learning is a modern full-stack online learning platform where students can ex
    git clone https://github.com/TanvirulAbrar/b12-a10-Online-Learning-Platform.git
 
 2. Install dependencies:
-  ```bash
-  npm install
+   ```bash
+   npm install
 
 
 3. Create a .env file and add:
@@ -70,9 +70,8 @@ O-Learning is a modern full-stack online learning platform where students can ex
   IMGBB API key
 
 5. Start the development server:
-  ```bash
-  npm run dev
-
+   ```bash
+   npm run dev
 
 ## 📸 Screenshot
 
