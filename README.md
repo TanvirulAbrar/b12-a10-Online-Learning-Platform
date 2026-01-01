@@ -64,13 +64,54 @@ O-Learning is a modern full-stack online learning platform where students can ex
 
    Firebase config keys
 
-   MongoDB URI
-
    IMGBB API key
 
 5. Start the development server:
    ```bash
    npm run dev
+
+## 🖥️ Server Side – Run Locally
+
+ 1. Clone the server repository
+      ```bash
+      git clone <SERVER_REPOSITORY_URL>
+
+2. Install server dependencies
+   ```bash
+   npm install
+   
+3. Create environment variables
+   -Create a .env file in the server root and add the following variables:
+    - MONGODB_URI=your_mongodb_connection_string 
+    - FIREBASE_API_KEY=your_firebase_api_key 
+    - URI=MongoDB connection URI 
+    - IMGBB_API_KEY=your_imgbb_api_key 
+    - Adjust keys according to your project needs. 
+
+5. Start the server with nodemon (recommended for development)
+   ```bash
+   node index.js
+   
+Make sure you have nodemon installed globally or as a dev dependency.
+
+5. copy paste the url to browser
+   ```bash
+   http://localhost:3000
+
+You should see a success message or a JSON response from your API.
+
+6. 🔗 Connect Frontend with Backend
+   Make sure your frontend API URLs point to the local server during development, e.g.:
+   ```bash
+   http://localhost:3000/
+
+## ⚠️ Notes
+   Use MongoDB Atlas or local MongoDB for your database.
+
+   Never commit your .env file to public repositories.
+
+   Ensure CORS is enabled on the backend for your frontend origin.
+
 
 ## 📸 Screenshot
 
