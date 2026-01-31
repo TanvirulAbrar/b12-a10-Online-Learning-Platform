@@ -1,0 +1,58 @@
+@import "tailwindcss";
+@plugin "daisyui";
+@plugin "daisyui" {
+  themes: light --default;
+}
+
+.Toastify__progress-bar {
+  background: #c79cff !important;
+}
+
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+
+  --color-primary: #9333ea;
+  --color-secondary: #03373d;
+}
+
+.theme-transition,
+.theme-transition * {
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* body.light {
+  background-color: white;
+  color: rgb(141, 140, 140);
+  transition: background-color 0.3s, color 0.3s;
+} */
+
+body.dark {
+  background-color: #ac3030;
+  color: #eee rgb(240, 18, 18);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body {
+  font-family: "Urbanist", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+nav a.active {
+  /* text-decoration: underline; */
+  border-radius: none;
+  /* background-color: base; */
+  /* border-bottom: 2px solid rgba(255, 255, 255, 0.3); */
+  color: rgba(255, 0, 230, 0.696);
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* .dark {
+  background-color: rgb(144, 174, 255);
+  color: rgb(18, 120, 112);
+} */
