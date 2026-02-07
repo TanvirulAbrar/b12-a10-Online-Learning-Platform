@@ -1,240 +1,415 @@
-import React, { useEffect, useState } from "react";
-import { useLoaderData } from "react-router";
+import { useEffect, useState } from "react";
 import CourseCard from "./CourseCard";
-import { toast } from "react-toastify";
 import useAxios from "./useAxios";
 import Loading from "./Loading";
-import AllCourceSkeleton from "./skeleton/AllCourceSkeleton";
-import { Search, ChevronDown, Filter, LayoutGrid } from "lucide-react";
+import {
+  Search,
+  ChevronDown,
+  Filter,
+  LayoutGrid,
+  Database,
+  Code,
+  Smartphone,
+  Terminal,
+  BarChart3,
+  Shield,
+  Brain,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import useTheme from "../hooks/useTheme";
 
 const Course = () => {
-  const { theme, textColor } = useTheme();
-  // const courses = useLoaderData();
   const axios = useAxios();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const [courses, setCourses] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [sort, setsort] = useState("");
   const [filterdata, setfilterdata] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [category, setCategory] = useState([]);
+
   useEffect(() => {
-    if (courses.length > 0) {
-      return;
-    }
+    if (courses.length > 0) return;
+
     axios
       .get("/courses")
       .then((res) => {
         setCourses(res.data);
         setfilterdata(res.data);
-        console.log("123");
       })
       .catch((err) => console.error(err));
-  }, [courses]);
-  // const { _id, title, image, price, category } = course;
-  const [category, setCategory] = useState([]);
+  }, [courses, axios]);
+
   useEffect(() => {
-    if (courses) {
-      const uniqueCategories = [];
+    if (courses.length === 0) return;
 
-      for (const course of courses) {
-        const cat = course.category;
-        if (cat && !uniqueCategories.includes(cat)) {
-          uniqueCategories.push(cat);
-        }
-      }
-
-      setCategory(uniqueCategories);
-    }
+    const uniqueCategories = [
+      ...new Set(courses.map((c) => c.category).filter(Boolean)),
+    ];
+    setCategory(uniqueCategories);
   }, [courses]);
 
-  const findWithWord = (a) => {
-    const mdata = courses.filter((item) =>
-      item.title.toLowerCase().includes(a.toLowerCase())
+  const findWithWord = (query) => {
+    if (!query.trim()) {
+      setfilterdata(courses);
+      return;
+    }
+    const mdata = courses.filter(
+      (item) =>
+        item.title.toLowerCase().includes(query.toLowerCase()) ||
+        item.category?.toLowerCase().includes(query.toLowerCase()),
     );
     setfilterdata(mdata);
   };
-  const handelsort = (type) => {
-    if (type == "price High-Low") {
-      const sortbyd = [...filterdata].sort(
-        (a, b) => Number(b.price) - Number(a.price)
-      );
-      setfilterdata(sortbyd);
-    }
-    if (type == "price Low-High") {
-      const sortbyd = [...filterdata].sort(
-        (a, b) => Number(a.price) - Number(b.price)
-      );
-      setfilterdata(sortbyd);
-    }
-    if (type == "size high-low") {
-      const sortbyd = [...filterdata].sort(
-        (a, b) => Number(b.size) - Number(a.size)
-      );
-      setfilterdata(sortbyd);
-    }
-    if (type == "size low-high") {
-      const sortbyd = [...filterdata].sort(
-        (a, b) => Number(a.size) - Number(b.size)
-      );
-      setfilterdata(sortbyd);
-    }
-    setsort(type);
-  };
-  const handelsortb = (e) => {
-    e.preventDefault();
 
-    const filterdataa = courses.filter((a) => a.category == e.target.innerText);
-    setSelectedCategory(e.target.innerText);
-    setfilterdata([...filterdataa]);
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    findWithWord(query);
   };
+
+  const handleSort = (type) => {
+    let sorted = [...filterdata];
+
+    if (type === "price High-Low") {
+      sorted.sort((a, b) => Number(b.price) - Number(a.price));
+    } else if (type === "price Low-High") {
+      sorted.sort((a, b) => Number(a.price) - Number(b.price));
+    } else if (type === "Latest") {
+      sorted.sort(
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
+      );
+    } else if (type === "Popularity") {
+      sorted.sort((a, b) => (b.enrolledCount || 0) - (a.enrolledCount || 0));
+    }
+
+    setfilterdata(sorted);
+  };
+
+  const handleCategory = (cat) => {
+    if (cat === "All") {
+      setfilterdata(courses);
+      setSelectedCategory("");
+    } else {
+      const filtered = courses.filter((item) => item.category === cat);
+      setfilterdata(filtered);
+      setSelectedCategory(cat);
+    }
+  };
+
+  const getCategoryIcon = (categoryName) => {
+    const iconMap = {
+      "Web Development": Code,
+      Backend: Terminal,
+      Mobile: Smartphone,
+      Database: Database,
+      "Data Science": BarChart3,
+      Security: Shield,
+      "AI & ML": Brain,
+    };
+    return iconMap[categoryName] || Code;
+  };
+
+  if (courses.length === 0) return <Loading />;
+
   return (
-    <div className="min-h-screen bg-base-50 dark:bg-slate-900/50 pb-24">
-      <div className="max-w-7xl py-16 mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-base-900 dark:text-white mb-4">
-            Explore All Courses
-          </h2>
-
-          <p className="text-slate-500 dark:text-slate-400 text-lg">
-            Unlock your potential with our comprehensive library of expert-led
-            courses
-          </p>
-        </div>
-
-        <div className="flex flex-col lg:flex-row gap-6 mb-12">
-          {/* Search Bar */}
-          <div className="flex-1 relative group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-slate-400 group-focus-within:text-purple-600 transition-colors" />
-            </div>
-            <input
-              type="search"
-              onChange={(e) => findWithWord(e.target.value.trim())}
-              className="w-full pl-12 pr-4 py-4 bg-base dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all shadow-sm hover:shadow-md"
-              placeholder="Search for courses, skills, or instructors..."
-            />
-          </div>
-
-          <div className="flex gap-4">
-            {/* Sort Dropdown */}
-            <div className="relative group">
-              <details className="dropdown dropdown-end">
-                <summary className="flex items-center gap-2 px-6 py-4 bg-base dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm">
-                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    Sort: {sort || "Latest"}
-                  </span>
-                  <ChevronDown className="h-4 w-4 text-slate-500 group-open:rotate-180 transition-transform" />
-                </summary>
-                <ul className="dropdown-content mt-2 p-2 bg-base dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 w-52 z-[50]">
-                  <li>
-                    <button
-                      onClick={() => handelsort("price High-Low")}
-                      className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600 rounded-lg transition-colors"
-                    >
-                      Price: High to Low
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => handelsort("price Low-High")}
-                      className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600 rounded-lg transition-colors"
-                    >
-                      Price: Low to High
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => handelsort("size high-low")}
-                      className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600 rounded-lg transition-colors"
-                    >
-                      Duration: Long to Short
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => handelsort("size low-high")}
-                      className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:text-purple-600 rounded-lg transition-colors"
-                    >
-                      Duration: Short to Long
-                    </button>
-                  </li>
-                </ul>
-              </details>
-            </div>
-          </div>
-        </div>
-
-        {/* Categories Section */}
-        <div className="mb-12">
-          <div className="flex items-center gap-2 mb-6 text-slate-900 dark:text-white font-bold text-xl">
-            <Filter className="w-5 h-5 text-purple-600" />
-            <h3 className={`${textColor} dark:text-white`}>
-              Filter by Category
-            </h3>
-          </div>
-          <div className="flex flex-wrap gap-3 overflow-x-auto pb-4 no-scrollbar">
-            <button
-              onClick={() => {
-                setfilterdata(courses);
-                setSelectedCategory("All Categories");
-              }}
-              className={`px-6 py-2 rounded-full border ${
-                selectedCategory === "All Categories"
-                  ? "border-purple-600 text-purple-600"
-                  : "border-slate-200 text-slate-600"
-              }  hover:bg-purple-600 hover:text-white transition-all font-medium whitespace-nowrap`}
+    <div
+      className={`min-h-screen antialiased transition-colors duration-300 ${
+        isDark ? "bg-[#101922] text-white" : "bg-[#f6f7f8] text-[#111418]"
+      }`}
+    >
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-1 w-full max-w-[1440px] mx-auto px-6 py-8">
+          {/* Page Heading */}
+          <div className="flex flex-col gap-3 mb-8 px-4">
+            <h1
+              className={`text-4xl font-black leading-tight tracking-[-0.033em] ${
+                isDark ? "text-white" : "text-[#111418]"
+              }`}
             >
-              All Categories
-            </button>
-            {category.map((a, i) => (
-              <button
-                onClick={(e) => handelsortb(e)}
-                key={"ac" + i}
-                className={`${
-                  selectedCategory === a
-                    ? "border-purple-600"
-                    : "border-slate-200"
-                } px-6 py-2 rounded-full border  dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-purple-600 hover:text-purple-600 transition-all font-medium whitespace-nowrap`}
-              >
-                {a}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {!courses.length > 0 && <AllCourceSkeleton />}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          <AnimatePresence>
-            {filterdata.map((course) => (
-              <motion.div
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.3 }}
-                key={course._id}
-              >
-                <CourseCard course={course} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-
-        {filterdata.length === 0 && courses.length > 0 && (
-          <div className="text-center py-24">
-            <div className="bg-slate-100 dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Search className="w-10 h-10 text-slate-400" />
-            </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-              No courses found
-            </h3>
-            <p className="text-slate-500 dark:text-slate-400">
-              Try adjusting your search or filters to find what you're looking
-              for.
+              Explore All Courses
+            </h1>
+            <p
+              className={`text-lg font-normal max-w-2xl ${
+                isDark ? "text-gray-400" : "text-[#617589]"
+              }`}
+            >
+              Unlock your potential with our comprehensive library of expert-led
+              courses designed for professional growth.
             </p>
           </div>
-        )}
+
+          {/* Toolbar */}
+          <div
+            className={`flex flex-col md:flex-row items-center justify-between gap-4 px-4 py-6 rounded-xl mb-8 border transition-colors duration-300 ${
+              isDark
+                ? "bg-gray-900 border-gray-800"
+                : "bg-white border-[#f0f2f4]"
+            }`}
+          >
+            <div className="flex-1 w-full max-w-lg">
+              <div className="relative group">
+                <div
+                  className={`absolute inset-y-0 left-0 flex items-center pl-4 ${
+                    isDark ? "text-gray-400" : "text-[#617589]"
+                  }`}
+                >
+                  <Search className="size-5" />
+                </div>
+                <input
+                  className={`w-full h-12 pl-12 pr-4 rounded-lg border-none text-sm focus:ring-2 focus:ring-[#137fec] outline-none transition-all placeholder:text-[#617589] ${
+                    isDark
+                      ? "bg-[#101922] text-white placeholder:text-gray-500"
+                      : "bg-[#f6f7f8] text-[#111418]"
+                  }`}
+                  placeholder="Search for courses, skills, or authors..."
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearch}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 w-full md:w-auto">
+              <div
+                className={`flex items-center gap-2 text-sm font-medium whitespace-nowrap ${
+                  isDark ? "text-gray-300" : "text-[#111418]"
+                }`}
+              >
+                <div className="flex items-center space-x-3 text-sm font-semibold">
+                  <span
+                    className={`${isDark ? "text-gray-300" : "text-gray-700"}`}
+                  >
+                    Sort by:
+                  </span>
+                  <div className="relative">
+                    <select
+                      className={`appearance-none rounded-lg h-10 px-4 pr-10 text-sm font-bold cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#137fec] transition-all
+        ${
+          isDark
+            ? "bg-[#101922] text-white border border-transparent"
+            : "bg-[#f0f2f4] text-[#111418] border border-gray-300"
+        }`}
+                      onChange={(e) => handleSort(e.target.value)}
+                    >
+                      {/* <option value="Latest">Latest</option>
+      <option value="Popularity">Popularity</option> */}
+                      <option value="price Low-High">Price: Low to High</option>
+                      <option value="price High-Low">Price: High to Low</option>
+                    </select>
+                    <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+                      <ChevronDown
+                        className={`w-4 h-4 ${isDark ? "text-gray-400" : "text-gray-600"}`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                className={`p-2 rounded-lg transition-all ${
+                  isDark
+                    ? "bg-[#101922] text-white hover:bg-gray-800"
+                    : "bg-[#f0f2f4] text-[#111418] hover:bg-gray-200"
+                }`}
+              >
+                <Filter className="size-5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-8 px-4">
+            {/* Side Navigation Filter */}
+            <aside className="w-full lg:w-64 flex-shrink-0">
+              <div
+                className={`sticky top-24 p-6 rounded-xl border transition-colors ${
+                  isDark
+                    ? "bg-gray-900 border-gray-800"
+                    : "bg-white border-[#f0f2f4]"
+                }`}
+              >
+                <h3
+                  className={`text-lg font-bold mb-6 ${
+                    isDark ? "text-white" : "text-[#111418]"
+                  }`}
+                >
+                  Categories
+                </h3>
+                <nav className="flex flex-col gap-2">
+                  <button
+                    onClick={() => handleCategory("All")}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left ${
+                      selectedCategory === ""
+                        ? "bg-[#137fec] text-white shadow-md shadow-[#137fec]/20"
+                        : isDark
+                          ? "hover:bg-[#137fec]/20 text-gray-300 group"
+                          : "hover:bg-[#137fec]/10 text-[#111418] group"
+                    }`}
+                  >
+                    <LayoutGrid
+                      className={`size-5 ${
+                        selectedCategory === ""
+                          ? "text-white"
+                          : isDark
+                            ? "text-gray-500 group-hover:text-[#137fec]"
+                            : "text-gray-500 group-hover:text-[#137fec]"
+                      }`}
+                    />
+                    <span
+                      className={`text-sm font-medium ${
+                        selectedCategory === ""
+                          ? "text-white"
+                          : isDark
+                            ? "group-hover:text-[#137fec]"
+                            : "group-hover:text-[#137fec]"
+                      }`}
+                    >
+                      All Courses
+                    </span>
+                  </button>
+
+                  {category.map((cat) => {
+                    const IconComponent = getCategoryIcon(cat);
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => handleCategory(cat)}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left ${
+                          selectedCategory === cat
+                            ? "bg-[#137fec] text-white shadow-md shadow-[#137fec]/20"
+                            : isDark
+                              ? "hover:bg-[#137fec]/20 text-gray-300 group"
+                              : "hover:bg-[#137fec]/10 text-[#111418] group"
+                        }`}
+                      >
+                        <IconComponent
+                          className={`size-5 ${
+                            selectedCategory === cat
+                              ? "text-white"
+                              : isDark
+                                ? "text-gray-500 group-hover:text-[#137fec]"
+                                : "text-gray-500 group-hover:text-[#137fec]"
+                          }`}
+                        />
+                        <span
+                          className={`text-sm font-medium ${
+                            selectedCategory === cat
+                              ? "text-white"
+                              : isDark
+                                ? "group-hover:text-[#137fec]"
+                                : "group-hover:text-[#137fec]"
+                          }`}
+                        >
+                          {cat}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+            </aside>
+
+            {/* Course Grid */}
+            <div className="flex-1">
+              {filterdata.length === 0 ? (
+                <div className="flex flex-col items-center gap-8 py-16">
+                  {/* No Results State */}
+                  <div
+                    className={`relative w-full max-w-[400px] aspect-video rounded-xl overflow-hidden border flex items-center justify-center transition-colors ${
+                      isDark
+                        ? "bg-gradient-to-br from-[#101922] to-[#137fec]/10 border-gray-700"
+                        : "bg-gradient-to-br from-[#f6f7f8] to-[#137fec]/5 border-[#137fec]/10"
+                    }`}
+                  >
+                    <div
+                      className={`flex flex-col items-center ${
+                        isDark ? "text-[#137fec]/40" : "text-[#137fec]/40"
+                      }`}
+                    >
+                      <Search className="size-20" />
+                    </div>
+                  </div>
+
+                  <div className="flex max-w-[540px] flex-col items-center gap-4">
+                    <h1
+                      className={`text-3xl font-bold leading-tight tracking-[-0.015em] text-center ${
+                        isDark ? "text-white" : "text-[#111418]"
+                      }`}
+                    >
+                      {searchQuery
+                        ? `Oops! We couldn't find any courses for "${searchQuery}"`
+                        : selectedCategory
+                          ? `No courses found in "${selectedCategory}"`
+                          : "No courses found"}
+                    </h1>
+                    <p
+                      className={`text-lg font-normal leading-relaxed text-center ${
+                        isDark ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
+                      Try adjusting your search query, removing filters, or
+                      explore one of our most popular learning paths below.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSelectedCategory("");
+                        setfilterdata(courses);
+                      }}
+                      className={`flex min-w-[160px] items-center justify-center rounded-lg h-12 px-6 text-base font-bold transition-all shadow-md ${
+                        isDark
+                          ? "bg-[#137fec] hover:bg-[#0e6fd9] text-white shadow-[#137fec]/15"
+                          : "bg-[#137fec] hover:bg-[#0e6fd9] text-white shadow-[#137fec]/25"
+                      }`}
+                    >
+                      Reset Search
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSelectedCategory("");
+                        setfilterdata(courses);
+                      }}
+                      className={`flex min-w-[160px] items-center justify-center rounded-lg h-12 px-6 text-base font-bold border transition-all ${
+                        isDark
+                          ? "bg-gray-900 border-gray-700 text-white hover:bg-gray-800"
+                          : "bg-white border-gray-200 text-[#111418] hover:bg-gray-50"
+                      }`}
+                    >
+                      View All Courses
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <motion.div
+                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <AnimatePresence>
+                    {filterdata.map((course, index) => (
+                      <motion.div
+                        key={course._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        className="h-full"
+                      >
+                        <CourseCard course={course} />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
+              )}
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );

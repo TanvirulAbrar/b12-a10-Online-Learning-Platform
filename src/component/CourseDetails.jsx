@@ -1,409 +1,604 @@
-import React, { useEffect, useState, use } from "react";
+import { useEffect, useState, useContext } from "react";
 import { NavLink, useParams } from "react-router";
 import { toast } from "react-toastify";
 import AuthContext from "../context/AuthContext";
 import { addressOfServer } from "./address";
 import {
-  Briefcase,
   Star,
-  Users,
-  Globe,
   Calendar,
   Clock,
-  ShieldCheck,
-  Play,
-  Smartphone,
-  BadgeCheck,
-  Award,
-  Tag,
-  Ticket,
-  User,
   CheckCircle,
-  Accessibility,
-  ArrowRight,
+  Play,
   Share2,
   Heart,
-  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  User,
+  Award,
+  Smartphone,
 } from "lucide-react";
-import { motion } from "framer-motion";
 import useAxios from "./useAxios";
 import Loading from "./Loading";
-import useTheme from "../hooks/useTheme";
+import useTheme from "../hooks/useTheme"; // ← added this
 
 const CourseDetails = () => {
-  const { theme } = useTheme();
   const { id } = useParams();
   const axios = useAxios();
+  const { theme } = useTheme(); // ← get theme from context
+  const isDark = theme === "dark";
+
+  const { user, enroll, enrollid, setenroll } = useContext(AuthContext);
   const [course, setCourse] = useState(null);
-  const [textColor, setTextColor] = useState("");
-  useEffect(() => {
-    setTextColor(theme === "dark" ? "text-white" : "text-black");
-  }, [theme]);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [expandedSection, setExpandedSection] = useState(2); // Default expanded
 
-  const { user, enroll, enrollid, setenroll } = use(AuthContext);
-
-  const [isEnrolled, setisEnrolled] = useState(false);
   useEffect(() => {
     if (!id) return;
-
     axios
       .get(`/courses/${id}`)
       .then((res) => setCourse(res.data))
       .catch((err) => console.error(err));
-  }, [id]);
+  }, [id, axios]);
 
   useEffect(() => {
-    if (!course || !enroll) {
-      return;
-    }
-    const data = enroll?.filter((a) => a == course._id);
-    if (data.length > 0) {
-      setisEnrolled(true);
-    }
+    if (!course || !enroll) return;
+    const isAlreadyEnrolled = enroll?.some((enrolledId) => enrolledId === course._id);
+    setIsEnrolled(isAlreadyEnrolled);
   }, [enroll, course]);
 
-  if (!course) return <Loading></Loading>;
+  if (!course) return <Loading />;
 
-  const handelSubmit = (event) => {
+  const handleEnrollToggle = (event) => {
     event.preventDefault();
-    if (course.instructor.email == user.email) {
-      return toast("You cannot enroll in your own course.");
-    }
-    let newCourse = {};
-    if (isEnrolled) {
-      const filterid = enroll.filter((a) => a != course._id);
 
-      setenroll([...filterid]);
-      newCourse = {
-        email: user.email,
-        enrolled: [...filterid],
-      };
-    } else {
-      setenroll([...enroll, course._id]);
-      newCourse = {
-        email: user.email,
-        enrolled: [...enroll, course._id],
-      };
+    if (course.instructor.email === user.email) {
+      return toast.error("You cannot enroll in your own course.");
     }
+
+    let updatedEnrolled = [];
+    if (isEnrolled) {
+      updatedEnrolled = enroll.filter((id) => id !== course._id);
+    } else {
+      updatedEnrolled = [...enroll, course._id];
+    }
+
+    setenroll(updatedEnrolled);
+
+    const payload = {
+      email: user.email,
+      enrolled: updatedEnrolled,
+    };
 
     axios
-      .patch(`${addressOfServer}/enroll/${enrollid}`, newCourse)
-      .then((res) => {
-        if (isEnrolled) {
-          toast("canceled successfully");
-        } else {
-          toast.success(" enrolled successfully!");
-        }
+      .patch(`${addressOfServer}/enroll/${enrollid}`, payload)
+      .then(() => {
+        toast.success(isEnrolled ? "Enrollment canceled" : "Enrolled successfully!");
       })
       .catch((error) => {
         console.error(error);
         toast.error("Server error — please try again later!");
       });
-    setisEnrolled(!isEnrolled);
+
+    setIsEnrolled(!isEnrolled);
   };
 
   const {
-    _id,
     title,
     image,
     price,
-    duration,
     category,
-    isFeatured,
     description,
     instructor,
   } = course;
 
-  const points = [
-    "Understand AI agents and the underlying technology",
-    "How to skyrocket productivity using AI agents",
-    "How to build scalable systems",
-    "Understand key Artificial Intelligence concepts",
-    `Acquire an understanding of ${title}`,
-    `Understand why ${title} is essential for success`,
+  const learningPoints = [
+    "Build powerful, fast, user-friendly reactive web apps",
+    "Master React Hooks like useState, useEffect, and useContext",
+    "Manage complex state with Redux Toolkit and React Query",
+    "Deploy real-world React projects to production",
+    "Apply modern ES6+ JavaScript features in React",
+    "Understand the Virtual DOM and React's reconciliation algorithm",
+  ];
+
+  const courseSections = [
+    { title: "Introduction to React", lectures: 5, duration: "45min" },
+    { title: "JSX and Components", lectures: 8, duration: "1h 12min" },
+    { title: "State and Props", lectures: 10, duration: "2h 5min", expanded: true },
+    { title: "Event Handling", lectures: 6, duration: "1h 30min" },
+    { title: "React Hooks", lectures: 12, duration: "3h 15min" },
   ];
 
   return (
-    <div className="min-h-screen bg-base-50 dark:bg-base-900/50 pb-20">
-      {/* Course Header Section */}
-      <section
-        className="relative py-12 lg:py-20 text-white overflow-hidden"
-        style={{
-          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
-        }}
-      >
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-purple-600 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2"></div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-3 gap-12 items-start">
-            <div className="lg:col-span-2 space-y-6">
-              {/* Breadcrumbs */}
-              <div className="flex items-center gap-2 text-sm text-slate-300">
-                <NavLink
-                  to="/courses"
-                  className="hover:text-purple-400 transition-colors"
-                >
-                  Courses
-                </NavLink>
-                <ChevronRight className="w-4 h-4" />
-                <span className="text-purple-400 font-medium">{category}</span>
-              </div>
-
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-3xl md:text-5xl font-black leading-tight"
+    <div
+      className={`min-h-screen font-display transition-colors duration-300 ${
+        isDark ? "bg-[#101922] text-white" : "bg-[#f6f7f8] text-[#111418]"
+      }`}
+    >
+      <main className="max-w-[1200px] mx-auto px-4 py-8">
+        <div className="flex flex-col lg:flex-row gap-12">
+          {/* Main Content Area (Left) */}
+          <div className="flex-1 lg:max-w-[750px]">
+            {/* Breadcrumbs */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              <NavLink
+                to="/courses"
+                className={`text-sm font-medium hover:text-[#137fec] transition-colors ${
+                  isDark ? "text-gray-400" : "text-[#617589]"
+                }`}
               >
+                Courses
+              </NavLink>
+              <span className={`${isDark ? "text-gray-400" : "text-[#617589]"}`}>/</span>
+              <span
+                className={`text-sm font-medium hover:text-[#137fec] transition-colors ${
+                  isDark ? "text-gray-400" : "text-[#617589]"
+                }`}
+              >
+                {category}
+              </span>
+              <span className={`${isDark ? "text-gray-400" : "text-[#617589]"}`}>/</span>
+              <span className={`${isDark ? "text-white" : "text-[#111418]"}`}>
                 {title}
-              </motion.h1>
+              </span>
+            </div>
 
-              <p className="text-lg md:text-xl text-slate-300 max-w-3xl leading-relaxed">
-                {description ||
-                  `Master ${title} with industry-leading experts. A comprehensive journey from fundamentals to advanced techniques.`}
-              </p>
+            {/* Hero Section Details */}
+            <h1
+              className={`tracking-tight text-4xl font-bold leading-tight mb-4 ${
+                isDark ? "text-white" : "text-[#111418]"
+              }`}
+            >
+              {title}
+            </h1>
+            <p
+              className={`text-lg font-normal leading-relaxed mb-6 ${
+                isDark ? "text-gray-300" : "text-[#111418]"
+              }`}
+            >
+              {description ||
+                "Master the fundamentals from scratch and build real-world applications with modern techniques and best practices."}
+            </p>
 
-              <div className="flex flex-wrap gap-6 items-center pt-4">
-                <div className="flex items-center gap-2">
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-current" />
-                    ))}
-                  </div>
-                  <span className="font-bold">4.8</span>
-                  <span className="text-slate-400 text-sm">
-                    (1,245 ratings)
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-300">
-                  <Users className="w-4 h-4 text-purple-400" />
-                  <span className="font-medium">4,568 students enrolled</span>
-                </div>
+            {/* Stats and Meta */}
+            <div className="flex flex-wrap gap-4 items-center mb-8">
+              <div
+                className={`flex items-center gap-1 px-2 py-1 rounded ${
+                  isDark ? "bg-yellow-900/30" : "bg-yellow-100"
+                }`}
+              >
+                <span className="text-yellow-400 font-bold">4.8</span>
+                <Star className="text-yellow-500 size-4 fill-current" />
+                <span
+                  className={`text-sm font-medium ${
+                    isDark ? "text-gray-400" : "text-[#617589]"
+                  }`}
+                >
+                  (1,245 ratings)
+                </span>
               </div>
-
-              <div className="flex flex-wrap gap-6 items-center text-sm text-slate-300 border-t border-slate-700/50 pt-6">
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4 text-purple-400" />
-                  <span>
-                    Created by{" "}
-                    <span className="text-white font-bold">
-                      {instructor?.name || "Expert Instructor"}
-                    </span>
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-purple-400" />
-                  <span>Last updated 11/2025</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-purple-400" />
-                  <span>English, French [Auto]</span>
-                </div>
+              <div className={`${isDark ? "text-white" : "text-[#111418]"} text-sm font-medium`}>
+                4,568 students
+              </div>
+              <div className={`${isDark ? "text-white" : "text-[#111418]"} text-sm`}>
+                Created by{" "}
+                <span className="text-[#137fec] hover:underline">
+                  {instructor?.name || "Expert Instructor"}
+                </span>
+              </div>
+              <div
+                className={`flex items-center gap-1 text-sm ${
+                  isDark ? "text-gray-400" : "text-[#617589]"
+                }`}
+              >
+                <Calendar className="size-4" />
+                Last updated 05/2024
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-20">
-        <div className="grid lg:grid-cols-3 gap-12 items-start">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-12 py-12">
+            {/* Profile Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+              {[
+                { value: "4.8", label: "Course Rating" },
+                { value: "1,245", label: "Reviews" },
+                { value: "4,568", label: "Students" },
+              ].map((stat, idx) => (
+                <div
+                  key={idx}
+                  className={`flex flex-col gap-2 rounded-xl border p-5 items-start transition-colors ${
+                    isDark
+                      ? "bg-gray-900 border-gray-700"
+                      : "bg-white border-[#dbe0e6]"
+                  }`}
+                >
+                  <p
+                    className={`tracking-light text-2xl font-bold leading-tight ${
+                      isDark ? "text-white" : "text-[#111418]"
+                    }`}
+                  >
+                    {stat.value}
+                  </p>
+                  <p
+                    className={`text-sm font-normal leading-normal ${
+                      isDark ? "text-gray-400" : "text-[#617589]"
+                    }`}
+                  >
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
             {/* What you'll learn */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className={`bg-base dark:bg-base-800 ${
-                theme === "dark" ? "bg-gray-900" : "bg-white"
-              } rounded-3xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm`}
+            <div
+              className={`border rounded-xl p-6 mb-10 transition-colors ${
+                isDark ? "bg-gray-900 border-gray-700" : "bg-white border-[#dbe0e6]"
+              }`}
             >
-              <h2 className="text-2xl font-black text-base-400 dark:text-white mb-8">
+              <h2
+                className={`text-xl font-bold mb-6 ${
+                  isDark ? "text-white" : "text-[#111418]"
+                }`}
+              >
                 What you'll learn
               </h2>
-              <div className="grid md:grid-cols-2 gap-4">
-                {points.map((point, index) => (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {learningPoints.map((point, index) => (
                   <div key={index} className="flex gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                    <span className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                    <CheckCircle className="text-[#137fec] size-5 flex-shrink-0 mt-0.5" />
+                    <span
+                      className={`text-sm ${
+                        isDark ? "text-gray-300" : "text-[#111418]"
+                      }`}
+                    >
                       {point}
                     </span>
                   </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
 
-            {/* Description Section */}
-            <div className="space-y-6">
-              <h2 className="text-2xl font-black text-slate-500 dark:text-white">
+            {/* Description */}
+            <div className="mb-10">
+              <h2
+                className={`text-xl font-bold mb-4 ${
+                  isDark ? "text-white" : "text-[#111418]"
+                }`}
+              >
                 Description
               </h2>
-              <div className="prose prose-slate dark:prose-invert max-w-none text-slate-600 dark:text-slate-400 leading-relaxed">
-                <p>{description}</p>
+              <div
+                className={`space-y-4 leading-relaxed ${
+                  isDark ? "text-gray-300" : "text-[#111418]"
+                }`}
+              >
                 <p>
-                  In this course, you will dive deep into the world of{" "}
-                  {category}. We cover everything from the basic concepts to
-                  advanced implementations. Whether you're a beginner looking to
-                  start your career or a professional wanting to level up your
-                  skills, this course is designed for you.
+                  Welcome to the most comprehensive course for mastering {title}. Whether you are a beginner or looking to solidify your front-end development skills, this course is designed to take you from zero to a professional developer.
                 </p>
-                <h4 className="text-slate-900 dark:text-white font-bold mt-4">
-                  Why this course?
-                </h4>
-                <ul className="list-disc pl-5 space-y-2">
-                  <li>Real-world projects and hands-on exercises</li>
-                  <li>Direct access to instructor for Q&A</li>
-                  <li>Lifetime access to all future updates</li>
-                  <li>Verified certificate of completion</li>
-                </ul>
+                <p>
+                  We start with the fundamentals: understanding core concepts, components, and best practices. Then, we dive deep into the modern development paradigm using the latest techniques. You'll learn how to handle events, manage state, and communicate with APIs seamlessly.
+                </p>
+                <p>
+                  By the end of this course, you won't just know how to write code; you'll understand the "why" behind the patterns, preparing you for high-paying roles in the tech industry.
+                </p>
               </div>
             </div>
 
-            {/* Curriculum Teaser */}
-            <div className="bg-base-100 dark:bg-base-800/50 rounded-3xl p-8 border border-dashed border-slate-300 dark:border-slate-700">
-              <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 text-center md:text-left">
-                    Course Content
-                  </h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm text-center md:text-left">
-                    12 sections • 85 lectures • 14h 25m total length
-                  </p>
+            {/* Course Content */}
+            <div className="mb-10">
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <h2
+                  className={`text-xl font-bold ${
+                    isDark ? "text-white" : "text-[#111418]"
+                  }`}
+                >
+                  Course Content
+                </h2>
+                <div
+                  className={`flex items-center gap-2 text-sm ${
+                    isDark ? "text-gray-400" : "text-[#617589]"
+                  }`}
+                >
+                  <span>12 sections</span>
+                  <span>•</span>
+                  <span>85 lectures</span>
+                  <span>•</span>
+                  <span>14h 32m total length</span>
                 </div>
-                <button className="px-6 py-3 bg-base dark:bg-base-800 border border-slate-200 dark:border-slate-700 rounded-xl font-bold text-slate-700 dark:text-slate-200 hover:bg-base-50 transition-colors">
-                  Expand all sections
-                </button>
+              </div>
+
+              <button
+                className={`mb-4 text-sm font-bold hover:underline ${
+                  isDark ? "text-[#60a5fa]" : "text-[#137fec]"
+                }`}
+              >
+                Expand all sections
+              </button>
+
+              <div className="space-y-1">
+                {courseSections.map((section, index) => (
+                  <div
+                    key={index}
+                    className={`border rounded-lg overflow-hidden transition-colors ${
+                      isDark ? "border-gray-700" : "border-[#dbe0e6]"
+                    }`}
+                  >
+                    <div
+                      className={`px-4 py-4 flex items-center justify-between cursor-pointer transition-colors ${
+                        expandedSection === index
+                          ? isDark
+                            ? "bg-[#137fec]/20"
+                            : "bg-[#137fec]/10"
+                          : isDark
+                          ? "bg-gray-900"
+                          : "bg-gray-50"
+                      }`}
+                      onClick={() =>
+                        setExpandedSection(expandedSection === index ? null : index)
+                      }
+                    >
+                      <div className="flex items-center gap-3">
+                        {expandedSection === index ? (
+                          <ChevronUp className="size-4" />
+                        ) : (
+                          <ChevronDown className="size-4" />
+                        )}
+                        <span
+                          className={`font-bold text-sm ${
+                            expandedSection === index
+                              ? "text-[#137fec]"
+                              : isDark
+                              ? "text-white"
+                              : "text-[#111418]"
+                          }`}
+                        >
+                          {section.title}
+                        </span>
+                      </div>
+                      <span
+                        className={`text-xs ${
+                          isDark ? "text-gray-400" : "text-[#617589]"
+                        }`}
+                      >
+                        {section.lectures} lectures • {section.duration}
+                      </span>
+                    </div>
+
+                    {expandedSection === index && (
+                      <div
+                        className={`p-4 border-t transition-colors ${
+                          isDark ? "border-gray-700 bg-gray-900" : "border-[#dbe0e6] bg-white"
+                        }`}
+                      >
+                        <ul className="space-y-3">
+                          <li className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-sm">
+                              <Play
+                                className={`size-5 ${
+                                  isDark ? "text-gray-400" : "text-gray-400"
+                                }`}
+                              />
+                              <span
+                                className={`${
+                                  isDark ? "text-gray-300" : "text-[#111418]"
+                                }`}
+                              >
+                                Understanding Props
+                              </span>
+                            </div>
+                            <span
+                              className={`text-xs ${
+                                isDark ? "text-gray-500" : "text-[#617589]"
+                              }`}
+                            >
+                              12:34
+                            </span>
+                          </li>
+                          <li className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-sm">
+                              <Play
+                                className={`size-5 ${
+                                  isDark ? "text-gray-400" : "text-gray-400"
+                                }`}
+                              />
+                              <span
+                                className={`${
+                                  isDark ? "text-gray-300" : "text-[#111418]"
+                                }`}
+                              >
+                                useState Hook Basics
+                              </span>
+                            </div>
+                            <span
+                              className={`text-xs ${
+                                isDark ? "text-gray-500" : "text-[#617589]"
+                              }`}
+                            >
+                              18:20
+                            </span>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Sidebar Floating Card */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            className="lg:sticky lg:top-28"
-          >
-            <div className="bg-base dark:bg-base-800 rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-slate-700 shadow-2xl">
-              <div className="relative aspect-video group cursor-pointer">
-                <img
-                  src={image}
-                  alt={title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="w-16 h-16 bg-base rounded-full flex items-center justify-center shadow-xl">
-                    <Play className="w-6 h-6 text-purple-600 fill-current ml-1" />
+          {/* Sticky Right Sidebar */}
+          <aside className="lg:w-[380px] flex flex-col gap-6">
+            <div
+              className={`sticky top-24 rounded-xl border shadow-lg overflow-hidden transition-colors ${
+                isDark
+                  ? "bg-gray-900 border-gray-700"
+                  : "bg-white border-[#dbe0e6]"
+              }`}
+            >
+              {/* Video Preview */}
+              <div className="relative group cursor-pointer aspect-video bg-gray-200 dark:bg-gray-800">
+                <div
+                  className="absolute inset-0 bg-cover bg-center opacity-80"
+                  style={{ backgroundImage: `url('${image}')` }}
+                ></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="size-16 rounded-full bg-white/90 flex items-center justify-center text-[#137fec] shadow-xl">
+                    <Play className="size-8 ml-1" />
                   </div>
                 </div>
-                <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                  <p className="text-white text-xs font-bold text-center">
+                <div className="absolute bottom-4 w-full text-center">
+                  <span className="text-white font-bold text-sm drop-shadow-md">
                     Preview this course
-                  </p>
+                  </span>
                 </div>
               </div>
 
-              <div className="p-8 space-y-8">
-                <div className="space-y-4">
-                  <div className="flex items-baseline gap-3">
-                    <span
-                      className={`text-4xl font-black ${
-                        theme === "dark" ? "text-white" : "text-gray-500"
-                      } dark:text-white`}
-                    >
-                      ${price}
-                    </span>
-                    <span className="text-lg text-slate-400 line-through">
-                      ${(Number(price) * 1.5).toFixed(2)}
-                    </span>
-                    <span className="text-green-500 font-bold text-sm">
-                      33% OFF
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-pink-600 text-sm font-bold">
-                    <Clock className="w-4 h-4" />
-                    <span>2 days left at this price!</span>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <button
-                    onClick={handelSubmit}
-                    className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg ${
-                      !isEnrolled
-                        ? "bg-purple-600 hover:bg-purple-700 text-white shadow-purple-200 dark:shadow-none"
-                        : "bg-base-100 dark:bg-base-700 text-slate-700 dark:text-slate-200 hover:bg-red-50 hover:text-red-600"
+              {/* Pricing and Buttons */}
+              <div className="p-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <span
+                    className={`text-3xl font-bold ${
+                      isDark ? "text-white" : "text-[#111418]"
                     }`}
                   >
-                    {!isEnrolled ? (
-                      <>
-                        Enroll Now <ArrowRight className="w-5 h-5" />
-                      </>
-                    ) : (
-                      "Cancel Enrollment"
-                    )}
+                    ${price}
+                  </span>
+                  <span
+                    className={`text-lg line-through ${
+                      isDark ? "text-gray-500" : "text-[#617589]"
+                    }`}
+                  >
+                    ${(Number(price) * 1.5).toFixed(2)}
+                  </span>
+                  <span className="bg-[#137fec]/20 text-[#137fec] text-xs font-bold px-2 py-1 rounded">
+                    33% OFF
+                  </span>
+                </div>
+                <div
+                  className={`flex items-center gap-2 text-sm font-bold mb-6 ${
+                    isDark ? "text-red-400" : "text-red-600"
+                  }`}
+                >
+                  <Clock className="size-4" />
+                  <span>2 days left at this price!</span>
+                </div>
+
+                <div className="flex flex-col gap-3 mb-6">
+                  <button
+                    onClick={handleEnrollToggle}
+                    className={`w-full font-bold py-3 rounded-lg transition-colors ${
+                      isEnrolled
+                        ? isDark
+                          ? "bg-red-700 hover:bg-red-800 text-white"
+                          : "bg-red-600 hover:bg-red-700 text-white"
+                        : "bg-[#137fec] hover:bg-[#0e6fd9] text-white"
+                    }`}
+                  >
+                    {isEnrolled ? "Cancel Enrollment" : "Enroll Now"}
                   </button>
-                  <button className="w-full py-4 rounded-2xl border border-slate-200 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-200 hover:bg-base-50 dark:hover:bg-base-700 transition-colors">
+                  <button
+                    className={`w-full border py-3 rounded-lg transition-colors ${
+                      isDark
+                        ? "border-gray-700 hover:bg-gray-800 text-white"
+                        : "border-[#dbe0e6] hover:bg-gray-50 text-[#111418]"
+                    }`}
+                  >
                     Add to Cart
                   </button>
                 </div>
 
-                <div className="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-700">
-                  <h4
-                    className={`font-bold ${
-                      theme === "dark" ? "text-white" : "text-gray-500"
-                    } dark:text-white text-sm`}
+                <div className="text-center mb-6">
+                  <p
+                    className={`text-xs ${
+                      isDark ? "text-gray-500" : "text-[#617589]"
+                    }`}
+                  >
+                    30-Day Money-Back Guarantee
+                  </p>
+                </div>
+
+                {/* Course Includes */}
+                <div className="mb-6">
+                  <h3
+                    className={`font-bold text-sm mb-4 ${
+                      isDark ? "text-white" : "text-[#111418]"
+                    }`}
                   >
                     This course includes:
-                  </h4>
-                  <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                    <li className="flex items-center gap-3">
-                      <Play className="w-4 h-4 text-purple-600" /> 14.5 hours
-                      on-demand video
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Accessibility className="w-4 h-4 text-purple-600" /> Full
-                      lifetime access
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Smartphone className="w-4 h-4 text-purple-600" /> Access
-                      on mobile and TV
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <Award className="w-4 h-4 text-purple-600" /> Certificate
-                      of completion
-                    </li>
+                  </h3>
+                  <ul className="space-y-3 text-sm">
+                    {[
+                      { icon: Play, text: "14.5 hours on-demand video" },
+                      { icon: CheckCircle, text: "12 articles" },
+                      { icon: CheckCircle, text: "25 downloadable resources" },
+                      { icon: CheckCircle, text: "Full lifetime access" },
+                      { icon: Smartphone, text: "Access on mobile and TV" },
+                      { icon: Award, text: "Certificate of completion" },
+                    ].map((item, idx) => (
+                      <li key={idx} className="flex items-center gap-3">
+                        <item.icon
+                          className={`size-5 opacity-70 ${
+                            isDark ? "text-gray-400" : "text-gray-400"
+                          }`}
+                        />
+                        <span
+                          className={`${
+                            isDark ? "text-gray-300" : "text-[#111418]"
+                          }`}
+                        >
+                          {item.text}
+                        </span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
 
-                <div className="flex justify-between items-center pt-4">
-                  <button className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-purple-600 transition-colors">
-                    <Share2 className="w-4 h-4" /> Share
+                {/* Actions */}
+                <div
+                  className={`flex items-center justify-between pt-6 border-t transition-colors ${
+                    isDark ? "border-gray-700" : "border-[#dbe0e6]"
+                  }`}
+                >
+                  <button
+                    className={`flex items-center gap-2 text-sm font-bold hover:text-[#137fec] transition-colors ${
+                      isDark ? "text-gray-300" : "text-[#111418]"
+                    }`}
+                  >
+                    <Share2 className="size-4" /> Share
                   </button>
-                  <button className="flex items-center gap-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-pink-600 transition-colors">
-                    <Heart className="w-4 h-4" /> Wishlist
+                  <button
+                    className={`flex items-center gap-2 text-sm font-bold hover:text-[#137fec] transition-colors ${
+                      isDark ? "text-gray-300" : "text-[#111418]"
+                    }`}
+                  >
+                    <Heart className="size-4" /> Wishlist
                   </button>
-                </div>
-
-                <div className="space-y-4 pt-4">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Enter Coupon Code"
-                      className="w-full pl-4 pr-12 py-3 bg-base-50 dark:bg-base-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-600"
-                    />
-                    <button className="absolute right-2 top-1/2 -translate-y-1/2 text-purple-600 font-bold text-sm px-2">
-                      Apply
-                    </button>
-                  </div>
+                  <button
+                    className={`flex items-center gap-2 text-sm font-bold hover:text-[#137fec] transition-colors ${
+                      isDark ? "text-gray-300" : "text-[#111418]"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-lg">sell</span> Coupon
+                  </button>
                 </div>
               </div>
             </div>
-          </motion.div>
+          </aside>
         </div>
-      </div>
+      </main>
+
+      <footer
+        className={`mt-12 border-t py-10 px-10 text-center transition-colors ${
+          isDark ? "border-gray-700" : "border-[#f0f2f4]"
+        }`}
+      >
+        <p
+          className={`text-sm ${
+            isDark ? "text-gray-500" : "text-[#617589]"
+          }`}
+        >
+          © 2024 O-Learn Inc. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 };

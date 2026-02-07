@@ -12,7 +12,6 @@ import {
   Gamepad2,
   Shield,
   ChevronRight,
-  ChartNoAxesCombined,
 } from "lucide-react";
 import useTheme from "../../hooks/useTheme";
 

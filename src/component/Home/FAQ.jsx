@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
 import useTheme from "../../hooks/useTheme";
 
 const FAQ = () => {
   const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const [openIndex, setOpenIndex] = useState(null);
 
   const faqs = [
@@ -34,63 +35,86 @@ const FAQ = () => {
   };
 
   return (
-    <section className="py-24 bg-base-50 dark:bg-slate-900/50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2
-            className={`text-4xl font-extrabold ${
-              theme === "dark" ? "text-white" : "text-slate-900"
-            } mb-4`}
-          >
-            Frequently Asked Questions
-          </h2>
-          <p
-            className={`${
-              theme === "dark" ? "text-slate-400" : "text-slate-500"
+    <section className="py-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2
+        className={`text-3xl md:text-4xl font-bold mb-10 text-center ${
+          isDark ? "text-white" : "text-[#111418]"
+        }`}
+      >
+        Frequently Asked Questions
+      </h2>
+
+      <div className="flex flex-col gap-4">
+        {faqs.map((faq, index) => (
+          <div
+            key={index}
+            className={`rounded-xl border transition-all duration-200 ${
+              isDark
+                ? "bg-gray-800 border-gray-700"
+                : "bg-white border-[#f0f2f4]"
+            } ${
+              openIndex === index
+                ? isDark
+                  ? "shadow-xl shadow-gray-900/30"
+                  : "shadow-xl"
+                : ""
             }`}
           >
-            Everything you need to know about O-Learn
-          </p>
-        </div>
-        <div className="space-y-4">
-          {faqs.map((faq, index) => (
-            <div
-              key={index}
-              className="group bg-base dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden"
+            <button
+              onClick={() => toggleFAQ(index)}
+              className={`w-full flex justify-between items-center p-6 text-left transition-colors ${
+                isDark ? "hover:bg-gray-700/70" : "hover:bg-gray-50"
+              }`}
             >
-              <button
-                onClick={() => toggleFAQ(index)}
-                className="w-full flex items-center justify-between p-6 cursor-pointer list-none font-bold text-base-900 dark:hover:bg-base dark:text-white text-left hover:bg-base-50 dark:hover:bg-base-700/50 transition-colors"
+              <h4
+                className={`font-bold text-base md:text-lg ${
+                  isDark ? "text-white" : "text-[#111418]"
+                }`}
               >
                 {faq.question}
-                {openIndex === index ? (
-                  <ChevronUp className="w-5 h-5 transition-transform" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 transition-transform" />
-                )}
-              </button>
-              {openIndex === index && (
-                <div
-                  className="p-6 pt-0 text-base-600  dark:hover:bg-base
-                dark:text-base-400 dark:hover:bg-base leading-relaxed"
+              </h4>
+
+              <span className="material-symbols-outlined text-[#137fec] transition-transform duration-300">
+                {openIndex === index ? "expand_less" : "expand_more"}
+              </span>
+            </button>
+
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                openIndex === index
+                  ? "max-h-96 opacity-100"
+                  : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="px-6 pb-6">
+                <p
+                  className={`text-sm leading-relaxed ${
+                    isDark ? "text-gray-300" : "text-[#617589]"
+                  }`}
                 >
                   {faq.answer}
-                </div>
-              )}
+                </p>
+              </div>
             </div>
-          ))}
-        </div>
-        <p
-          className={`text-center mt-8 text-sm ${
-            theme === "dark" ? "text-slate-400" : "text-slate-500"
+          </div>
+        ))}
+      </div>
+
+      <p
+        className={`text-center mt-10 text-sm ${
+          isDark ? "text-gray-400" : "text-[#617589]"
+        }`}
+      >
+        Still have questions?{" "}
+        <a
+          href="#"
+          className={`font-bold hover:underline transition-colors ${
+            isDark ? "text-[#60a5fa]" : "text-[#137fec]"
           }`}
         >
-          Still have questions?{" "}
-          <a className="text-purple-600 font-bold hover:underline" href="#">
-            Contact our support team
-          </a>
-        </p>
-      </div>
+          Contact our support team
+        </a>
+      </p>
     </section>
   );
 };

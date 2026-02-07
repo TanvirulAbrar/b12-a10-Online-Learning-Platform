@@ -64,8 +64,8 @@ const MyCourseCard = ({ course, setCourses, courses, i }) => {
           : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
       } transition-colors`}
     >
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-400">
-        {String(i + 1).padStart(2, "0")}
+      <td className="px-6 py-4 max-sm:hidden whitespace-nowrap text-sm font-bold text-slate-400">
+        {i + 1}
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-4">
@@ -82,7 +82,10 @@ const MyCourseCard = ({ course, setCourses, courses, i }) => {
                 theme === "dark" ? "text-white" : "text-slate-900"
               } line-clamp-1`}
             >
-              {title}
+              {title}{" "}
+              {/* <span className="px-3 py-1  min-md:hidden bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-full">
+                {category}
+              </span> */}
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
               <span className="font-bold text-indigo-600">${price}</span>
@@ -92,7 +95,7 @@ const MyCourseCard = ({ course, setCourses, courses, i }) => {
           </div>
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="px-6 py-4 whitespace-nowrap max-sm:hidden">
         <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-full">
           {category}
         </span>

@@ -5,14 +5,14 @@
 }
 
 .Toastify__progress-bar {
-  background: #c79cff !important;
+  background: #137fec !important;
 }
 
 @plugin "daisyui/theme" {
   name: "light";
   default: true;
 
-  --color-primary: #9333ea;
+  --color-primary: #137fec;
   --color-secondary: #03373d;
 }
 
@@ -22,6 +22,21 @@
     border-color 0.3s ease;
 }
 
+/* Line clamp utilities for consistent text truncation */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* body.light {
   background-color: white;
   color: rgb(141, 140, 140);
@@ -29,8 +44,8 @@
 } */
 
 body.dark {
-  background-color: #ac3030;
-  color: #eee rgb(240, 18, 18);
+  background-color: #101922;
+  color: #e5e7eb;
   transition: background-color 0.3s, color 0.3s;
 }
 
@@ -40,11 +55,8 @@ body {
   font-style: normal;
 }
 nav a.active {
-  /* text-decoration: underline; */
   border-radius: none;
-  /* background-color: base; */
-  /* border-bottom: 2px solid rgba(255, 255, 255, 0.3); */
-  color: rgba(255, 0, 230, 0.696);
+  color: #137fec;
 }
 
 .no-scrollbar {

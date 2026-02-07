@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router";
 import MainLayout from "../layouts/MainLayout";
 import Login from "../pages/Auth/Login/Login";
 import Register from "../pages/Auth/Register/Register";
-import { Eraser } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import ErrorPage from "../pages/Shared/404/ErrorPage";
 import Loading from "../pages/Shared/Loading/Loading";
 import Home from "../pages/Home/Home/Home";

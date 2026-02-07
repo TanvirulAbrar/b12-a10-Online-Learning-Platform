@@ -5,26 +5,32 @@ import useTheme from "../../hooks/useTheme";
 
 const PopularCourses = ({ courses }) => {
   const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  const featuredCourses = courses.filter(
+    (course) => course.isFeatured === true,
+  );
+
   return (
-    <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="text-center mb-16">
-        <h2
-          className={`text-4xl font-extrabold ${
-            theme === "dark" ? "text-white" : "text-slate-900"
-          } mb-4`}
-        >
-          Popular Courses
-        </h2>
-        {/* <div className="h-1.5 w-20 bg-purple-600 mx-auto rounded-full"></div> */}
-      </div>
+    <section className="py-16 max-w-[1280px] mx-auto px-4 sm:px-10">
+      <h2
+        className={`text-3xl font-bold mb-10 ${
+          isDark ? "text-white" : "text-[#111418]"
+        }`}
+      >
+        Popular Courses
+      </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {courses
-          .filter((a) => a.isFeatured == true)
-          .map((course) => (
-            <CourseCard key={course._id} course={course}></CourseCard>
-          ))}
-        {!courses.length > 0 && <Loading></Loading>}
+        {featuredCourses.length > 0 ? (
+          featuredCourses.map((course) => (
+            <CourseCard key={course._id} course={course} />
+          ))
+        ) : (
+          <div className="col-span-full flex justify-center py-12">
+            <Loading />
+          </div>
+        )}
       </div>
     </section>
   );

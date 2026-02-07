@@ -1,9 +1,6 @@
-import React, { use } from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
-import AuthContext from "../context/AuthContext";
-import { addressOfServer } from "./address";
-import axios from "axios";
 import { motion } from "framer-motion";
 import {
   PlusCircle,
@@ -12,27 +9,40 @@ import {
   Clock,
   DollarSign,
   AlignLeft,
-  CheckCircle2,
+  CheckCircle,
 } from "lucide-react";
+import axios from "axios";
+import AuthContext from "../context/AuthContext";
 import useTheme from "../hooks/useTheme";
+import { addressOfServer } from "./address";
 
 const AddCourse = () => {
-  const { user } = use(AuthContext);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
-  const handelAddCourse = (event) => {
-    event.preventDefault();
+  const handleAddCourse = async (e) => {
+    e.preventDefault();
 
-    const title = event.target.title.value?.trim();
-    const image = event.target.image.value?.trim();
-    const price = event.target.price.value?.trim();
-    const duration = event.target.duration.value?.trim();
-    const category = event.target.category.value?.trim();
-    const description = event.target.description.value?.trim();
-    const isFeatured = event.target.isFeatured.checked;
+    const form = e.target;
+    const title = form.title.value?.trim();
+    const image = form.image.value?.trim();
+    const priceStr = form.price.value?.trim();
+    const duration = form.duration.value?.trim();
+    const category = form.category.value?.trim();
+    const description = form.description.value?.trim();
+    const isFeatured = form.isFeatured.checked;
 
-    if (!title || !image || !price || !duration || !category || !description) {
-      toast.error("Please fill all fields before submitting!");
+    // Basic validation
+    if (!title || !image || !priceStr || !duration || !category || !description) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    const price = Number(priceStr);
+    if (isNaN(price) || price < 0) {
+      toast.error("Price must be a valid non-negative number.");
       return;
     }
 
@@ -45,133 +55,193 @@ const AddCourse = () => {
       description,
       isFeatured,
       instructor: {
-        name: user.displayName,
-        email: user.email,
-        photo: user.photoURL,
+        name: user?.displayName || "Unknown Instructor",
+        email: user?.email || "",
+        photo: user?.photoURL || "",
       },
+      createdAt: new Date().toISOString(),
     };
 
-    axios
-      .post(`${addressOfServer}/courses`, newCourse)
-      .then((data) => {
-        toast.success("Course added successfully!");
-        event.target.reset();
-        navigate("/dashboard/myAddedCourse");
-      })
-      .catch((error) => {
-        console.error(error);
-        toast.error("Server error — please try again later!");
-      });
+    try {
+      await axios.post(`${addressOfServer}/courses`, newCourse);
+      toast.success("Course published successfully!");
+      form.reset();
+      navigate("/dashboard/myAddedCourse");
+    } catch (err) {
+      console.error("Failed to add course:", err);
+      toast.error(
+        err.response?.data?.message || "Failed to publish course. Try again."
+      );
+    }
   };
-  const { theme, textColor } = useTheme();
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8  dark:bg-slate-900/50">
+    <div
+      className={`min-h-screen py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${
+        isDark ? "bg-[#101922]" : "bg-[#f6f7f8]"
+      }`}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
         className="max-w-3xl mx-auto"
       >
-        <div className="bg-base dark:bg-slate-800 shadow-2xl rounded-[2.5rem] overflow-hidden border border-slate-100 dark:border-slate-700">
-          <div className="bg-purple-600 p-8 text-white">
+        <div
+          className={`rounded-3xl shadow-2xl overflow-hidden border ${
+            isDark
+              ? "bg-gray-900 border-gray-800"
+              : "bg-white border-gray-200"
+          }`}
+        >
+          {/* Header */}
+          <div
+            className={`p-8 text-white ${
+              isDark ? "bg-[#137fec]" : "bg-[#137fec]"
+            }`}
+          >
             <div className="flex items-center gap-4 mb-2">
               <PlusCircle className="w-8 h-8" />
-              <h2 className="text-3xl font-black">Add New Course</h2>
+              <h2 className="text-3xl font-black tracking-tight">
+                Add New Course
+              </h2>
             </div>
-            <p className="text-purple-100">
+            <p className="text-blue-100/90">
               Create a high-quality learning experience for your students.
             </p>
           </div>
 
-          <form onSubmit={handelAddCourse} className="p-8 lg:p-12 space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Form */}
+          <form onSubmit={handleAddCourse} className="p-8 lg:p-12 space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
               {/* Title */}
-              <div className="space-y-2 md:col-span-2">
-                <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
-                  <Tag className="w-4 h-4 text-purple-600" />
-                  Course Title
+              <div className="md:col-span-2 space-y-2">
+                <label
+                  className={`flex items-center gap-2 text-sm font-semibold ${
+                    isDark ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  <Tag className="w-4 h-4 text-[#137fec]" />
+                  Course Title *
                 </label>
                 <input
                   name="title"
                   type="text"
-                  className={`${
-                    theme === "dark" ? " bg-base" : "bg-slate-50"
-                  } w-full px-4 py-3 ${textColor} dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-600 outline-none transition-all`}
+                  required
+                  className={`w-full px-4 py-3 rounded-xl border bg-gray-50 focus:ring-2 focus:ring-[#137fec] focus:border-[#137fec] outline-none transition-all ${
+                    isDark
+                      ? "border-gray-700 text-gray-100 bg-gray-800"
+                      : "border-gray-200 text-gray-900 bg-gray-50"
+                  }`}
                   placeholder="e.g. Master React.js from Scratch"
                 />
               </div>
 
               {/* Image URL */}
-              <div className="space-y-2 md:col-span-2">
-                <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
-                  <ImageIcon className="w-4 h-4 text-purple-600" />
-                  Thumbnail Image URL
+              <div className="md:col-span-2 space-y-2">
+                <label
+                  className={`flex items-center gap-2 text-sm font-semibold ${
+                    isDark ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  <ImageIcon className="w-4 h-4 text-[#137fec]" />
+                  Thumbnail URL *
                 </label>
                 <input
                   name="image"
-                  type="text"
-                  className={`${
-                    theme === "dark" ? " bg-base" : "bg-slate-50"
-                  } w-full px-4 py-3 ${textColor} dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-600 outline-none transition-all`}
-                  placeholder="https://example.com/image.jpg"
+                  type="url"
+                  required
+                  className={`w-full px-4 py-3 rounded-xl border bg-gray-50 focus:ring-2 focus:ring-[#137fec] focus:border-[#137fec] outline-none transition-all ${
+                    isDark
+                      ? "border-gray-700 text-gray-100 bg-gray-800"
+                      : "border-gray-200 text-gray-900 bg-gray-50"
+                  }`}
+                  placeholder="https://example.com/course-preview.jpg"
                 />
               </div>
 
               {/* Price */}
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
-                  <DollarSign className="w-4 h-4 text-purple-600" />
-                  Price ($)
+                <label
+                  className={`flex items-center gap-2 text-sm font-semibold ${
+                    isDark ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  <DollarSign className="w-4 h-4 text-[#137fec]" />
+                  Price (USD) *
                 </label>
                 <input
                   name="price"
                   type="number"
-                  className={`${
-                    theme === "dark" ? " bg-base" : "bg-slate-50"
-                  } w-full px-4 py-3 ${textColor} dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-600 outline-none transition-all`}
+                  step="0.01"
+                  min="0"
+                  required
+                  className={`w-full px-4 py-3 rounded-xl border bg-gray-50 focus:ring-2 focus:ring-[#137fec] focus:border-[#137fec] outline-none transition-all ${
+                    isDark
+                      ? "border-gray-700 text-gray-100 bg-gray-800"
+                      : "border-gray-200 text-gray-900 bg-gray-50"
+                  }`}
                   placeholder="29.99"
                 />
               </div>
 
               {/* Duration */}
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
-                  <Clock className="w-4 h-4 text-purple-600" />
-                  Duration
+                <label
+                  className={`flex items-center gap-2 text-sm font-semibold ${
+                    isDark ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  <Clock className="w-4 h-4 text-[#137fec]" />
+                  Duration *
                 </label>
                 <input
                   name="duration"
                   type="text"
-                  className={`${
-                    theme === "dark" ? " bg-base" : "bg-slate-50"
-                  } w-full px-4 py-3 ${textColor} dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-600 outline-none transition-all`}
-                  placeholder="e.g. 12.5 Hours"
+                  required
+                  className={`w-full px-4 py-3 rounded-xl border bg-gray-50 focus:ring-2 focus:ring-[#137fec] focus:border-[#137fec] outline-none transition-all ${
+                    isDark
+                      ? "border-gray-700 text-gray-100 bg-gray-800"
+                      : "border-gray-200 text-gray-900 bg-gray-50"
+                  }`}
+                  placeholder="e.g. 12.5 hours • 8 weeks"
                 />
               </div>
 
               {/* Category */}
               <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
-                  <AlignLeft className="w-4 h-4 text-purple-600" />
-                  Category
+                <label
+                  className={`flex items-center gap-2 text-sm font-semibold ${
+                    isDark ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  <AlignLeft className="w-4 h-4 text-[#137fec]" />
+                  Category *
                 </label>
                 <select
                   name="category"
-                  className={`${
-                    theme === "dark" ? " bg-base" : "bg-slate-50"
-                  } w-full px-4 py-3 ${textColor} dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-600 outline-none transition-all`}
+                  required
+                  className={`w-full px-4 py-3 rounded-xl border bg-gray-50 focus:ring-2 focus:ring-[#137fec] focus:border-[#137fec] outline-none transition-all ${
+                    isDark
+                      ? "border-gray-700 text-gray-100 bg-gray-800"
+                      : "border-gray-200 text-gray-900 bg-gray-50"
+                  }`}
                 >
-                  <option value="">Select Category</option>
+                  <option value="">Select category</option>
                   <option value="Web Development">Web Development</option>
                   <option value="Data Science">Data Science</option>
                   <option value="Graphic Design">Graphic Design</option>
                   <option value="Digital Marketing">Digital Marketing</option>
                   <option value="Business">Business</option>
+                  <option value="Mobile Development">Mobile Development</option>
+                  <option value="AI & Machine Learning">
+                    AI & Machine Learning
+                  </option>
                 </select>
               </div>
 
               {/* Featured Checkbox */}
-              <div className="flex items-center gap-3 pt-8">
+              <div className="flex items-center gap-3 pt-4 md:pt-8 md:col-span-2">
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -179,34 +249,56 @@ const AddCourse = () => {
                     className="sr-only peer"
                   />
                   <div
-                    className={`w-11 h-6  peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 dark:peer-focus:ring-purple-800 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-base after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-600`}
+                    className={`w-11 h-6 rounded-full peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#137fec]/30 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${
+                      isDark
+                        ? "bg-gray-700 peer-checked:bg-[#137fec] after:border-gray-600 peer-checked:after:border-white"
+                        : "bg-gray-200 peer-checked:bg-[#137fec] after:border-gray-300 peer-checked:after:border-white"
+                    }`}
                   ></div>
-                  <span className="ml-3 text-sm font-bold text-slate-700 dark:text-slate-300">
-                    Feature this course
+                  <span
+                    className={`ml-3 text-sm font-semibold ${
+                      isDark ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
+                    Mark as Featured
                   </span>
                 </label>
               </div>
 
               {/* Description */}
-              <div className="space-y-2 md:col-span-2">
-                <label className="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
-                  <CheckCircle2 className="w-4 h-4 text-purple-600" />
-                  Course Description
+              <div className="md:col-span-2 space-y-2">
+                <label
+                  className={`flex items-center gap-2 text-sm font-semibold ${
+                    isDark ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  <CheckCircle className="w-4 h-4 text-[#137fec]" />
+                  Description *
                 </label>
                 <textarea
                   name="description"
-                  rows="4"
-                  className={`${
-                    theme === "dark" ? " bg-base" : "bg-slate-50"
-                  } w-full px-4 py-3 ${textColor} dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-600 outline-none transition-all`}
-                  placeholder="Provide a detailed description of what students will learn..."
-                ></textarea>
+                  rows={5}
+                  required
+                  className={`w-full px-4 py-3 rounded-xl border bg-gray-50 focus:ring-2 focus:ring-[#137fec] focus:border-[#137fec] outline-none transition-all resize-y ${
+                    isDark
+                      ? "border-gray-700 text-gray-100 bg-gray-800"
+                      : "border-gray-200 text-gray-900 bg-gray-50"
+                  }`}
+                  placeholder="Describe what students will learn, who this course is for, and what they'll be able to do after completing it..."
+                />
               </div>
             </div>
 
-            <button className="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-purple-200 dark:shadow-none flex items-center justify-center gap-2 group">
+            <button
+              type="submit"
+              className={`w-full py-4 mt-6 font-bold text-lg rounded-2xl shadow-lg transition-all duration-300 flex items-center justify-center gap-3 active:scale-[0.98] ${
+                isDark
+                  ? "bg-[#137fec] hover:bg-[#0e6fd9] text-white shadow-[#137fec]/30"
+                  : "bg-[#137fec] hover:bg-[#0e6fd9] text-white shadow-[#137fec]/25"
+              }`}
+            >
+              <PlusCircle className="w-5 h-5" />
               Publish Course
-              <PlusCircle className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             </button>
           </form>
         </div>
